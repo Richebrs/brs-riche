@@ -1,0 +1,161 @@
+!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Accueil - BRS Riche</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #f4f7fb;
+      color: #333;
+      -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none;
+      -webkit-touch-callout:none;
+      touch-action: manipulation;
+    }
+    #home-container { max-width: 1100px; margin: auto; padding: 0 16px 60px; }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #0d47a1, #1976d2);
+      color: #fff;
+      text-align: center;
+      padding: 64px 20px;
+      border-radius: 14px;
+      margin: 24px 0 40px;
+    }
+    .hero h1 { font-size: 2.2em; margin: 0 0 12px; }
+    .hero p { font-size: 1.1em; margin: 0 0 22px; }
+    .btn {
+      display: inline-block;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-weight: bold;
+      text-decoration: none;
+      margin: 6px;
+      transition: transform .2s, background .2s;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+    }
+    .btn-primary { background: #ffcc00; color: #0d47a1; }
+    .btn-outline { color: #fff; text-decoration: underline; }
+    .btn:hover { transform: translateY(-2px); }
+
+    /* SECTION */
+    .section {
+      padding: 48px 12px;
+      background: #fff;
+      border-radius: 14px;
+      margin: 16px 0;
+    }
+    .section h2 {
+      font-size: 1.9em;
+      color: #0d47a1;
+      text-align: center;
+      margin: 0 0 18px;
+    }
+    .section p { text-align: justify; }
+
+    /* CARDS */
+    .cards { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; margin-top: 16px; }
+    .card {
+      flex: 1 1 280px;
+      max-width: 340px;
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      text-align: center;
+      transition: transform .2s;
+    }
+    .card:hover { transform: translateY(-4px); }
+    .card i { font-size: 1.8em; color: #0d47a1; }
+
+    /* CTA */
+    .cta {
+      text-align: center;
+      background: #0d47a1;
+      color: #fff;
+      border-radius: 14px;
+      padding: 48px 16px;
+      margin-top: 28px;
+    }
+    .cta h2 { font-size: 2em; margin-bottom: 12px; }
+    .cta .btn-primary { background: #ffcc00; color: #0d47a1; }
+
+    @media(max-width:768px){
+      .hero h1 { font-size: 1.7em; }
+      .btn { display: block; width: 92%; max-width: 320px; margin: 10px auto; }
+    }
+  </style>
+</head>
+<body oncopy="return false" oncut="return false" onpaste="return false" oncontextmenu="return false">
+
+<div id="home-container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <h1>💸 Bienvenue sur <span style="color:#ffcc00;">BRS Riche</span></h1>
+    <p>La plateforme simple et sécurisée pour gérer vos dépôts, retraits et gains en temps réel 🚀</p>
+    <a href="register.html" class="btn btn-primary">Créer un compte</a>
+    <a href="login.html" class="btn btn-outline">Déjà membre ? Se connecter</a>
+  </header>
+
+  <!-- QUI SOMMES-NOUS -->
+  <section class="section">
+    <h2>🚀 Qui sommes-nous ?</h2>
+    <p><strong>BRS Riche</strong> est une plateforme moderne qui vous permet de suivre vos investissements, 
+    vos dépôts et vos retraits en toute simplicité. Accessible depuis mobile ou ordinateur, 
+    notre objectif est de rendre les gains clairs et transparents pour chaque utilisateur.</p>
+  </section>
+
+  <!-- AVANTAGES -->
+  <section class="section">
+    <h2>✨ Nos Avantages</h2>
+    <div class="cards">
+      <div class="card">
+        <i class="fas fa-shield-alt"></i>
+        <h3>Sécurité</h3>
+        <p>Toutes vos opérations sont protégées et enregistrées en temps réel.</p>
+      </div>
+      <div class="card">
+        <i class="fas fa-chart-line"></i>
+        <h3>Tableau de Bord</h3>
+        <p>Suivez vos gains, retraits et dépôts depuis un espace unique et clair.</p>
+      </div>
+      <div class="card">
+        <i class="fas fa-mobile-alt"></i>
+        <h3>100% Mobile</h3>
+        <p>Profitez d’une expérience optimisée sur votre smartphone ou tablette.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <h2>📲 Commencez aujourd’hui !</h2>
+    <p>Inscrivez-vous gratuitement et profitez d’une gestion simple de vos finances.</p>
+    <a href="register.html" class="btn btn-primary">Créer mon compte</a>
+    <div style="margin-top:12px;">
+      <a href="login.html" class="btn btn-outline">Déjà inscrit ? Connexion</a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Bloquer les raccourcis copie/impression/zoom
+  document.addEventListener('keydown', function(e){
+    if ((e.ctrlKey || e.metaKey) && ['c','s','u','p','+','-','0'].includes(e.key.toLowerCase())) {
+      e.preventDefault();
+    }
+  });
+  document.addEventListener('wheel', function(e){
+    if (e.ctrlKey) e.preventDefault();
+  }, {passive:false});
+</script>
+
+</body>
+  </html>
+    
