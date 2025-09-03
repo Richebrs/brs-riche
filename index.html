@@ -4,11 +4,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BRS Riche</title>
+  <title>BRS Riche — Démo</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin:0; background:#0b1020; color:#e9eef6; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 20px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    h1 { font-size: 1.2rem; margin: 0; }
+    .card { background:#121a33; border:1px solid #1b274d; border-radius:14px; padding:16px; margin:14px 0; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; }
+    .col { flex: 1 1 280px; }
+    input, button { width: 100%; padding: 12px 14px; border-radius: 10px; border:1px solid #2a3a6a; background:#0f1730; color:#e9eef6; }
+    button { background:#2f6df6; border:none; font-weight:600; cursor:pointer; }
+    button.secondary { background:#1b264b; }
+    .muted { color:#9fb0d6; font-size:.92rem; }
+    .success { color:#8ef0a7; }
+    .danger { color:#ff8e8e; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding:8px 10px; border-bottom:1px solid #1b274d; text-align:left; }
+    .right { text-align:right; }
+  </style>
 </head>
 <body>
-  <h1>Bienvenue sur BRS Riche 🚀</h1>
-  <p>Site connecté à Firebase.</p>
-</body>
-  </html>
+  <div class="wrap" id="app">
+    <header>
+      <h1>💸 Démo BRS Riche</h1>
+      <div v-if="user">
+        <small class="muted">Connecté : {{ user.email }}</small>
+        <button class="secondary" @click="logout">Se déconnecter</button>
+      </div>
+    </header>
 
+    <div class="card" v-if="!user">
+      <div class="row">
+        <div class="col">
+          <h3>Créer un compte</h3>
+          <input v-model="form.signup.email" type="email" placeholder="Email" />
+          <input v-model="form.signup.password" type="password" placeholder="Mot de passe (min 6 caractères)" />
+          <input v-model="form.signup.referrer" type="text" placeholder="Email du parrain (optionnel)" />
+          <button @click="register">S'inscrire</button>
+        </div>
+        <div class="col">
+          <h3>Se connecter</h3>
+          <input v-model="form.login.email" type="email" placeholder="Email" />
+          <input v-model="form.login.password" type="password" placeholder="Mot de passe" />
+          <button class="secondary" @click="login">Connexion</button>
+        </div>
+      </div>
+      <p v-if="error" class="danger">{{ error }}</p>
+    </div>
+
+    <div v-if="user" class="card">
+      <div class="row">
+        <div class="col">
+          <h3>Mon portefeuille</h3>
+          <p>Solde actuel : <strong>{{ format(balance) }}</strong></p>
+          <p>Dernière application des gains : <span class="muted">{{ lastAppliedAtText }}</span></p>
+          <p>Gain quotidien appliqué : <strong>{{ (DAILY_RATE*100).toFixed(2) }}%</strong> / jour</p>
+
+          <div class="row">
+            <div class="col"><input v-model.number="amount" type="number" min="1" step="1" placeholder="Montant (ex: 100)" /></div>
+            <div class="col"><button @click="deposit">Déposer</button></div>
+          </div>
+
+          <div class="row">
+            <div class="col"><button class="secondary" @click="applyGains">Appliquer les gains (1x/jour)</button></div>
+            <div class="col"><button class="secondary" @click="resetDemo">Réinitialiser (démo)</button></div>
+          </div>
+
+          <p v-if="message" class="success">{{ message }}</p>
+          <p class="muted">⚠️ Démo pédagogique. Ne pas utiliser pour de l'argent réel.</p>
+        </div>
+
+        <div class="col">
+          <h3>Historique des transactions</h3>
+          <table>
+            <thead><tr><th>Date</th><th>Type</th><th class="right">Montant</th></tr></thead>
+            <tbody>
+              <tr v-for="t in transactions" :key="t.id">
+                <td>{{ (t.created_at?.toDate?.() || new Date(t.created_at)).toLocaleString() }}</td>
+                <td>{{ t.type }}</td>
+                <td class="right">{{ format(t.amount) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vue 3 -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <!-- Firebase compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <!-- Ta config Firebase -->
+  <script src="./firebase-init.js"></script>
+  <!-- Logique de l'app -->
+  <script src="./app.js"></script>
+</body>
+          </html>
+                              
