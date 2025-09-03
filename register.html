@@ -1,0 +1,118 @@
+<!-- Fichier : register.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Inscription | BRS Riche</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      height: 100vh;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%; max-width: 400px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #2d89ef;
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1b5fc6;
+    }
+    .link {
+      text-align: center;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="app">
+    <h2>Créer un compte</h2>
+    <input v-model="form.signup.email" type="email" placeholder="Email" required>
+    <input v-model="form.signup.password" type="password" placeholder="Mot de passe" required>
+    <input v-model="form.signup.referrer" type="text" placeholder="Code parrain (optionnel)">
+    <button @click="register">S'inscrire</button>
+
+    <p style="color:green;" v-if="message">{{message}}</p>
+    <p style="color:red;" v-if="error">{{error}}</p>
+
+    <div class="link">
+      <a href="login.html">Déjà un compte ? Se connecter</a>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="firebase-init.js"></script>
+
+  <!-- Vue.js -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+  <script>
+    const { createApp } = Vue;
+    createApp({
+      data() {
+        return {
+          form: { signup: { email: "", password: "", referrer: "" } },
+          message: "", error: ""
+        };
+      },
+      methods: {
+        async register() {
+          this.error = this.message = "";
+          try {
+            const { user } = await auth.createUserWithEmailAndPassword(
+              this.form.signup.email.trim(),
+              this.form.signup.password
+            );
+
+            await db.collection('users').doc(user.uid).set({
+              email: user.email,
+              created_at: firebase.firestore.FieldValue.serverTimestamp(),
+              referrer: this.form.signup.referrer || null
+            });
+
+            await db.collection('wallets').doc(user.uid).set({
+              balance: 0,
+              lastAppliedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            this.message = "Inscription réussie ✅";
+            setTimeout(()=>{ window.location.href="dashboard.html"; }, 1000);
+          } catch(e) {
+            this.error = e.message;
+          }
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+    </html>
+  
