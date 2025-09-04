@@ -1,219 +1,152 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard - BRS Riche</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <style>
-    body {
-      font-family:'Segoe UI',sans-serif;
-      margin:0; padding:0;
-      background:#f4f7fb;
-      color:#333;
-      -webkit-user-select:none; -moz-user-select:none; user-select:none;
-      overflow-x:hidden;
-    }
+<meta charset="UTF-8">
+<title>Dashboard - BRS Riche</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    margin:0; padding:0;
+    background:#f4f7fb;
+    color:#333;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none;
+  }
+  header { background:#0d47a1; color:#fff; padding:20px; text-align:center; }
+  header h1 { margin:0; font-size:1.5em; }
 
-    header {
-      background: linear-gradient(135deg,#0d47a1,#1976d2);
-      color:#fff;
-      padding:20px;
-      text-align:center;
-      border-bottom-left-radius:14px;
-      border-bottom-right-radius:14px;
-    }
+  .balances {
+    display:flex; justify-content:space-around;
+    margin:20px 10px; text-align:center;
+  }
+  .balance-box {
+    background:#fff; flex:1; margin:0 5px;
+    padding:20px; border-radius:12px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+  }
+  .balance-box h3 { margin:0; font-size:1em; color:#0d47a1; }
+  .balance-box p { margin:5px 0 0; font-size:1.2em; font-weight:bold; }
 
-    header h1 { margin:0; font-size:1.6em; }
+  /* Menu horizontal 3 blocs par ligne */
+  .menu {
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin:20px 10px;
+    gap:15px;
+  }
+  .menu a {
+    flex: 1 1 calc(33% - 20px);
+    min-width:100px;
+    background:#ffcc00;
+    color:#0d47a1;
+    border-radius:14px;
+    text-align:center;
+    font-weight:bold;
+    text-decoration:none;
+    padding:20px 10px;
+    box-shadow:0 6px 14px rgba(0,0,0,0.15);
+    transition: transform 0.2s, background 0.2s;
+  }
+  .menu a i {
+    display:block;
+    font-size:2em;
+    margin-bottom:8px;
+  }
+  .menu a:hover { transform:translateY(-4px); background:#e6b800; }
 
-    .stats {
-      display:flex;
-      justify-content:space-around;
-      margin-top:15px;
-      flex-wrap:wrap;
-    }
+  /* Section catalogue */
+  .section { padding:20px 10px; }
+  .section h2 { text-align:center; color:#0d47a1; margin-bottom:15px; }
+  .cards { display:flex; flex-wrap:wrap; gap:15px; justify-content:center; }
+  .card {
+    background:#fff; padding:15px; border-radius:12px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    flex:1 1 200px; max-width:250px; text-align:center;
+  }
+  .card img { width:100%; border-radius:10px; }
+  .card h3 { margin:10px 0 5px; color:#0d47a1; }
+  .card p { margin:0; font-size:0.9em; }
 
-    .stat-card {
-      flex:1 1 120px;
-      max-width:150px;
-      background:#fff;
-      color:#0d47a1;
-      border-radius:12px;
-      padding:15px;
-      margin:6px;
-      text-align:center;
-      box-shadow:0 6px 14px rgba(0,0,0,0.15);
-    }
+  @media(max-width:768px){
+    .balances { flex-direction:column; }
+    .balance-box { margin:5px 0; }
+    .menu a { flex:1 1 45%; font-size:0.95em; padding:18px 8px; }
+    .menu a i { font-size:1.8em; }
+  }
 
-    .stat-card h3 { margin:6px 0; font-size:1em; }
-    .stat-card p { margin:0; font-weight:bold; font-size:1.2em; }
-
-    .action-buttons {
-      display:flex;
-      justify-content:center;
-      flex-wrap:wrap;
-      margin:20px 0;
-      gap:10px;
-    }
-
-    .btn-action {
-      display:inline-block;
-      padding:12px 18px;
-      border-radius:12px;
-      font-weight:bold;
-      text-decoration:none;
-      color:#fff;
-      transition:.3s;
-      min-width:120px;
-      text-align:center;
-    }
-
-    .btn-deposit { background:#2e7d32; }
-    .btn-withdraw { background:#c62828; }
-    .btn-history { background:#1565c0; }
-    .btn-hotels { background:#f57f17; color:#fff; }
-    .btn-residences { background:#6a1b9a; color:#fff; }
-
-    .btn-action:hover { opacity:0.85; transform:translateY(-2px); }
-
-    #productGrid {
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-      gap:15px;
-      margin-top:20px;
-    }
-
-    .product-card {
-      background:#fff;
-      border-radius:14px;
-      padding:12px;
-      box-shadow:0 8px 24px rgba(0,0,0,0.08);
-      text-align:center;
-    }
-
-    .product-card img {
-      width:100%;
-      border-radius:12px;
-      height:140px;
-      object-fit:cover;
-    }
-
-    .product-card h4 { margin:10px 0 5px; font-size:1em; }
-    .product-card p { margin:0; font-size:.9em; color:#555; }
-
-    @media(max-width:768px){
-      .stats { flex-direction:column; align-items:center; }
-      .action-buttons { flex-direction:column; }
-      .btn-action { width:90%; max-width:280px; }
-    }
-  </style>
+  @media(max-width:480px){
+    .menu a { flex:1 1 90%; font-size:1em; padding:20px 10px; }
+    .menu a i { font-size:2em; }
+  }
+</style>
 </head>
 <body oncopy="return false" oncut="return false" onpaste="return false" oncontextmenu="return false">
 
 <header>
-  <h1>💸 Bienvenue, <span id="userName">Utilisateur</span></h1>
-  <div class="stats">
-    <div class="stat-card">
-      <h3>Disponible</h3>
-      <p id="availableBalance">0 USDT</p>
-    </div>
-    <div class="stat-card">
-      <h3>Retiré</h3>
-      <p id="withdrawn">0 USDT</p>
-    </div>
-    <div class="stat-card">
-      <h3>Total Gains</h3>
-      <p id="totalEarnings">0 USDT</p>
-    </div>
-  </div>
+  <h1>💎 Dashboard BRS Riche</h1>
 </header>
 
-<div class="container">
-
-  <!-- ACTIONS RAPIDES -->
-  <div class="action-buttons">
-    <a href="deposit.html" class="btn-action btn-deposit"><i class="fas fa-arrow-up"></i> Dépôt</a>
-    <a href="withdraw.html" class="btn-action btn-withdraw"><i class="fas fa-arrow-down"></i> Retrait</a>
-    <a href="history.html" class="btn-action btn-history"><i class="fas fa-history"></i> Historique</a>
-    <a href="hotels.html" class="btn-action btn-hotels"><i class="fas fa-hotel"></i> Hotels</a>
-    <a href="residences.html" class="btn-action btn-residences"><i class="fas fa-building"></i> Residences</a>
+<div class="balances">
+  <div class="balance-box">
+    <h3>Disponible</h3>
+    <p>$0.00</p>
   </div>
-
-  <!-- PRODUITS (PUBLIC ET PRIVÉ) -->
-  <div id="productGrid">
-    <!-- Les cartes des hôtels et résidences s’afficheront ici -->
-    <p style="text-align:center; width:100%;">Chargement des produits...</p>
+  <div class="balance-box">
+    <h3>Retiré</h3>
+    <p>$0.00</p>
   </div>
-
+  <div class="balance-box">
+    <h3>Gains Total</h3>
+    <p>$0.00</p>
+  </div>
 </div>
 
-<script src="firebase-init.js"></script>
-<script>
-  let user = null;
+<!-- Menu 3 blocs -->
+<div class="menu">
+  <a href="#"><i class="fas fa-wallet"></i>Dépôt</a>
+  <a href="#"><i class="fas fa-hand-holding-dollar"></i>Retrait</a>
+  <a href="#"><i class="fas fa-history"></i>Historique</a>
+  <a href="#"><i class="fas fa-hotel"></i>Hotels</a>
+  <a href="#"><i class="fas fa-building"></i>Residences</a>
+  <a href="#"><i class="fas fa-home"></i>My Hotels</a>
+  <a href="#"><i class="fas fa-door-closed"></i>My Residences</a>
+</div>
 
-  firebase.auth().onAuthStateChanged(async u => {
-    if(u){ 
-      user = u;
-      document.getElementById('userName').innerText = user.email.split('@')[0];
-      await loadUserStats();
-      await loadProducts();
-    } else { 
-      window.location.href="login.html"; 
-    }
-  });
+<section class="section">
+  <h2>🏨 Hotels disponibles</h2>
+  <div class="cards">
+    <div class="card">
+      <img src="https://via.placeholder.com/250x150?text=Hotel+1" alt="Hotel 1">
+      <h3>Hotel 1</h3>
+      <p>Prix: $50/jour</p>
+    </div>
+    <div class="card">
+      <img src="https://via.placeholder.com/250x150?text=Hotel+2" alt="Hotel 2">
+      <h3>Hotel 2</h3>
+      <p>Prix: $80/jour</p>
+    </div>
+  </div>
+</section>
 
-  async function loadUserStats(){
-    const db = firebase.firestore();
-    const uid = user.uid;
-    const userDoc = await db.collection('users').doc(uid).get();
-    if(userDoc.exists){
-      const data = userDoc.data();
-      document.getElementById('availableBalance').innerText = (data.balance || 0).toFixed(2)+" USDT";
-      document.getElementById('withdrawn').innerText = (data.withdrawn || 0).toFixed(2)+" USDT";
-      document.getElementById('totalEarnings').innerText = (data.totalEarnings || 0).toFixed(2)+" USDT";
-    }
-  }
-
-  async function loadProducts(){
-    const db = firebase.firestore();
-    const grid = document.getElementById('productGrid');
-    grid.innerHTML = '';
-
-    // Exemple : récupérer tous les hôtels disponibles
-    const hotelsSnapshot = await db.collection('hotels').where('status','==','available').get();
-    hotelsSnapshot.forEach(doc=>{
-      const h = doc.data();
-      grid.innerHTML += `<div class="product-card">
-        <img src="${h.image}" alt="${h.name}">
-        <h4>${h.name}</h4>
-        <p>${h.description || ''}</p>
-      </div>`;
-    });
-
-    // Idem pour les résidences
-    const resSnapshot = await db.collection('residences').where('status','==','available').get();
-    resSnapshot.forEach(doc=>{
-      const r = doc.data();
-      grid.innerHTML += `<div class="product-card">
-        <img src="${r.image}" alt="${r.name}">
-        <h4>${r.name}</h4>
-        <p>${r.description || ''}</p>
-      </div>`;
-    });
-
-    if(grid.innerHTML === ''){
-      grid.innerHTML = '<p style="text-align:center; width:100%;">Aucun produit disponible.</p>';
-    }
-  }
-
-  // Bloquer zoom (ctrl + molette)
-  document.addEventListener('wheel', function(e){ if(e.ctrlKey) e.preventDefault(); }, {passive:false});
-  document.addEventListener('keydown', function(e){
-    if((e.ctrlKey||e.metaKey) && ['+','-','0'].includes(e.key)) e.preventDefault();
-  });
-
-</script>
+<section class="section">
+  <h2>🏢 Residences disponibles</h2>
+  <div class="cards">
+    <div class="card">
+      <img src="https://via.placeholder.com/250x150?text=Residence+1" alt="Residence 1">
+      <h3>Residence 1</h3>
+      <p>Prix: $30/jour</p>
+    </div>
+    <div class="card">
+      <img src="https://via.placeholder.com/250x150?text=Residence+2" alt="Residence 2">
+      <h3>Residence 2</h3>
+      <p>Prix: $45/jour</p>
+    </div>
+  </div>
+</section>
 
 </body>
   </html>
-  
+                
