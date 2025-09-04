@@ -62,7 +62,6 @@ header h1 { margin:0; font-size:1.5em; }
   <a href="my-residences.html"><i class="fas fa-door-closed"></i>My Residences</a>
 </div>
 
-<!-- Sections catalogues -->
 <section class="section" id="catalogue-hotels">
   <h2>🏨 Hotels disponibles</h2>
   <div class="cards" id="hotels-cards"></div>
@@ -102,65 +101,65 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Vérifier si utilisateur connecté
-auth.onAuthStateChanged(user=>{
+// Vérifier connexion utilisateur
+auth.onAuthStateChanged(user => {
   if(user){
     document.body.style.display = "block"; // afficher le dashboard
 
-    // Récupérer soldes
+    // Soldes utilisateur
     db.collection('users').doc(user.uid).onSnapshot(doc=>{
       if(doc.exists){
-        const data=doc.data();
-        document.getElementById('balance-available').innerText=`$${data.balanceAvailable.toFixed(2)}`;
-        document.getElementById('balance-withdrawn').innerText=`$${data.balanceWithdrawn.toFixed(2)}`;
-        document.getElementById('balance-total').innerText=`$${data.balanceTotal.toFixed(2)}`;
+        const data = doc.data();
+        document.getElementById('balance-available').innerText = `$${data.balanceAvailable.toFixed(2)}`;
+        document.getElementById('balance-withdrawn').innerText = `$${data.balanceWithdrawn.toFixed(2)}`;
+        document.getElementById('balance-total').innerText = `$${data.balanceTotal.toFixed(2)}`;
       }
     });
 
     // Hotels publics
     db.collection('hotels').where("reserved","==",false).get().then(snapshot=>{
-      const container=document.getElementById('hotels-cards');
+      const container = document.getElementById('hotels-cards');
       snapshot.forEach(doc=>{
-        const data=doc.data();
-        const div=document.createElement('div');
-        div.className='card';
-        div.innerHTML=`<img src="${data.image}" alt="${data.name}"><h3>${data.name}</h3><p>Prix: $${data.price}/jour</p>`;
+        const data = doc.data();
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<img src="${data.image}" alt="${data.name}"><h3>${data.name}</h3><p>Prix: $${data.price}/jour</p>`;
         container.appendChild(div);
       });
     });
 
     // Residences publics
     db.collection('residences').where("reserved","==",false).get().then(snapshot=>{
-      const container=document.getElementById('residences-cards');
+      const container = document.getElementById('residences-cards');
       snapshot.forEach(doc=>{
-        const data=doc.data();
-        const div=document.createElement('div');
-        div.className='card';
-        div.innerHTML=`<img src="${data.image}" alt="${data.name}"><h3>${data.name}</h3><p>Prix: $${data.price}/jour</p>`;
+        const data = doc.data();
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<img src="${data.image}" alt="${data.name}"><h3>${data.name}</h3><p>Prix: $${data.price}/jour</p>`;
         container.appendChild(div);
       });
     });
 
     // My Hotels
     db.collection('hotels').where("reservedBy","==",user.uid).get().then(snapshot=>{
-      const container=document.getElementById('my-hotels-cards');
+      const container = document.getElementById('my-hotels-cards');
       snapshot.forEach(doc=>{
-        const data=doc.data();
-        const div=document.createElement('div');
-        div.className='card';
-        div.innerHTML=`<img src="${data.image}" alt="${data.name}"><h3>${data.name}</h3><p>Prix: $${data.price}/jour</p>`;
+        const data = doc.data();
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<img src="${data.image}" alt="${data.name}"><h3>${data.name}</h3><p>Prix: $${data.price}/jour</p>`;
         container.appendChild(div);
       });
     });
 
     // My Residences
     db.collection('residences').where("reservedBy","==",user.uid).get().then(snapshot=>{
-      const container=document.getElementById('my-residences-cards');
+      const container = document.getElementById('my-residences-cards');
       snapshot.forEach(doc=>{
-        const data=doc.data();
-        const div=document.createElement('div');
-        div.className='card';
-        div.innerHTML=`<img src="${data.image}" alt="${data.name}"><h3>${data.name}</h3><p>Prix: $${data.price}/jour</p>`;
+        const data = doc.data();
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<img src="${data.image}" alt="${data.name}"><h3>${data.name}</h3><p>Prix: $${data.price}/jour</p>`;
         container.appendChild(div);
       });
     });
@@ -171,6 +170,5 @@ auth.onAuthStateChanged(user=>{
 });
 </script>
 </body>
-</html>
-
-    
+  </html>
+  
