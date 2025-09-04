@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -13,7 +12,9 @@
       background:#f4f7fb;
       color:#333;
       -webkit-user-select:none; -moz-user-select:none; user-select:none;
+      overflow-x:hidden;
     }
+
     header {
       background: linear-gradient(135deg,#0d47a1,#1976d2);
       color:#fff;
@@ -22,58 +23,88 @@
       border-bottom-left-radius:14px;
       border-bottom-right-radius:14px;
     }
-    header h1 { margin:0; font-size:1.8em; }
-    header .btn-logout {
-      background:#ffcc00;
-      color:#0d47a1;
-      border:none;
-      border-radius:10px;
-      padding:8px 16px;
-      cursor:pointer;
-      font-weight:bold;
-      margin-top:10px;
-      transition:.3s;
+
+    header h1 { margin:0; font-size:1.6em; }
+
+    .stats {
+      display:flex;
+      justify-content:space-around;
+      margin-top:15px;
+      flex-wrap:wrap;
     }
-    header .btn-logout:hover { background:#ffc107; }
 
-    .container { max-width: 1000px; margin:auto; padding:20px; }
-
-    .cards { display:flex; flex-wrap:wrap; gap:18px; justify-content:center; margin-bottom:20px; }
-    .card {
-      flex:1 1 280px;
-      max-width:340px;
+    .stat-card {
+      flex:1 1 120px;
+      max-width:150px;
       background:#fff;
-      border-radius:14px;
-      padding:22px;
-      box-shadow:0 8px 24px rgba(0,0,0,0.08);
+      color:#0d47a1;
+      border-radius:12px;
+      padding:15px;
+      margin:6px;
       text-align:center;
-      transition: transform .2s;
+      box-shadow:0 6px 14px rgba(0,0,0,0.15);
     }
-    .card:hover { transform: translateY(-4px); }
-    .card i { font-size:2em; color:#0d47a1; margin-bottom:10px; }
+
+    .stat-card h3 { margin:6px 0; font-size:1em; }
+    .stat-card p { margin:0; font-weight:bold; font-size:1.2em; }
+
+    .action-buttons {
+      display:flex;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin:20px 0;
+      gap:10px;
+    }
 
     .btn-action {
       display:inline-block;
-      padding:12px 24px;
+      padding:12px 18px;
       border-radius:12px;
       font-weight:bold;
       text-decoration:none;
-      margin:6px;
-      box-shadow:0 4px 10px rgba(0,0,0,0.15);
+      color:#fff;
       transition:.3s;
+      min-width:120px;
+      text-align:center;
     }
-    .btn-deposit { background:#2e7d32; color:#fff; }
-    .btn-withdraw { background:#c62828; color:#fff; }
-    .btn-copy { background:#0d47a1; color:#fff; }
 
-    table { width:100%; border-collapse:collapse; margin-top:20px; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.08); }
-    table th, table td { padding:12px; text-align:center; border-bottom:1px solid #eee; }
-    table th { background:#0d47a1; color:#fff; }
-    table tr:last-child td { border-bottom:none; }
+    .btn-deposit { background:#2e7d32; }
+    .btn-withdraw { background:#c62828; }
+    .btn-history { background:#1565c0; }
+    .btn-hotels { background:#f57f17; color:#fff; }
+    .btn-residences { background:#6a1b9a; color:#fff; }
+
+    .btn-action:hover { opacity:0.85; transform:translateY(-2px); }
+
+    #productGrid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+      gap:15px;
+      margin-top:20px;
+    }
+
+    .product-card {
+      background:#fff;
+      border-radius:14px;
+      padding:12px;
+      box-shadow:0 8px 24px rgba(0,0,0,0.08);
+      text-align:center;
+    }
+
+    .product-card img {
+      width:100%;
+      border-radius:12px;
+      height:140px;
+      object-fit:cover;
+    }
+
+    .product-card h4 { margin:10px 0 5px; font-size:1em; }
+    .product-card p { margin:0; font-size:.9em; color:#555; }
 
     @media(max-width:768px){
-      .cards { flex-direction:column; align-items:center; }
-      table th, table td { font-size:.9em; padding:8px; }
+      .stats { flex-direction:column; align-items:center; }
+      .action-buttons { flex-direction:column; }
+      .btn-action { width:90%; max-width:280px; }
     }
   </style>
 </head>
@@ -81,115 +112,108 @@
 
 <header>
   <h1>💸 Bienvenue, <span id="userName">Utilisateur</span></h1>
-  <button class="btn-logout" onclick="logout()">Se déconnecter</button>
+  <div class="stats">
+    <div class="stat-card">
+      <h3>Disponible</h3>
+      <p id="availableBalance">0 USDT</p>
+    </div>
+    <div class="stat-card">
+      <h3>Retiré</h3>
+      <p id="withdrawn">0 USDT</p>
+    </div>
+    <div class="stat-card">
+      <h3>Total Gains</h3>
+      <p id="totalEarnings">0 USDT</p>
+    </div>
+  </div>
 </header>
 
 <div class="container">
 
-  <!-- SOLDE ET GAIN -->
-  <div class="cards">
-    <div class="card">
-      <i class="fas fa-wallet"></i>
-      <h3>Solde Actif</h3>
-      <p id="balance">0 USDT</p>
-    </div>
-    <div class="card">
-      <i class="fas fa-coins"></i>
-      <h3>Total Gains</h3>
-      <p id="totalEarnings">0 USDT</p>
-    </div>
-    <div class="card">
-      <i class="fas fa-user-friends"></i>
-      <h3>Invités</h3>
-      <p id="referrals">0</p>
-    </div>
-  </div>
-
   <!-- ACTIONS RAPIDES -->
-  <div style="text-align:center; margin-bottom:20px;">
-    <a href="deposit.html" class="btn-action btn-deposit"><i class="fas fa-arrow-up"></i> Déposer</a>
-    <a href="withdraw.html" class="btn-action btn-withdraw"><i class="fas fa-arrow-down"></i> Retirer</a>
-    <button class="btn-action btn-copy" onclick="copyReferral()"><i class="fas fa-copy"></i> Copier lien parrain</button>
+  <div class="action-buttons">
+    <a href="deposit.html" class="btn-action btn-deposit"><i class="fas fa-arrow-up"></i> Dépôt</a>
+    <a href="withdraw.html" class="btn-action btn-withdraw"><i class="fas fa-arrow-down"></i> Retrait</a>
+    <a href="history.html" class="btn-action btn-history"><i class="fas fa-history"></i> Historique</a>
+    <a href="hotels.html" class="btn-action btn-hotels"><i class="fas fa-hotel"></i> Hotels</a>
+    <a href="residences.html" class="btn-action btn-residences"><i class="fas fa-building"></i> Residences</a>
   </div>
 
-  <!-- HISTORIQUE DES TRANSACTIONS -->
-  <h2 style="text-align:center; color:#0d47a1; margin-bottom:12px;">📜 Historique des Transactions</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Type</th>
-        <th>Montant</th>
-        <th>Solde</th>
-      </tr>
-    </thead>
-    <tbody id="transactionHistory">
-      <tr><td colspan="4">Chargement...</td></tr>
-    </tbody>
-  </table>
+  <!-- PRODUITS (PUBLIC ET PRIVÉ) -->
+  <div id="productGrid">
+    <!-- Les cartes des hôtels et résidences s’afficheront ici -->
+    <p style="text-align:center; width:100%;">Chargement des produits...</p>
+  </div>
 
 </div>
 
 <script src="firebase-init.js"></script>
 <script>
-  // Variables Firebase
   let user = null;
 
-  firebase.auth().onAuthStateChanged(u => {
+  firebase.auth().onAuthStateChanged(async u => {
     if(u){ 
       user = u;
       document.getElementById('userName').innerText = user.email.split('@')[0];
-      loadDashboard();
+      await loadUserStats();
+      await loadProducts();
     } else { 
-      window.location.href = "login.html"; 
+      window.location.href="login.html"; 
     }
   });
 
-  function logout(){
-    firebase.auth().signOut().then(()=>{ window.location.href="login.html"; });
-  }
-
-  async function loadDashboard(){
+  async function loadUserStats(){
     const db = firebase.firestore();
     const uid = user.uid;
-
-    // Solde
     const userDoc = await db.collection('users').doc(uid).get();
     if(userDoc.exists){
       const data = userDoc.data();
-      document.getElementById('balance').innerText = data.balance.toFixed(2) + " USDT";
-      document.getElementById('totalEarnings').innerText = (data.totalEarnings || 0).toFixed(2) + " USDT";
-      document.getElementById('referrals').innerText = data.referrals || 0;
-    }
-
-    // Historique
-    const historyRef = db.collection('transactions').where('userId','==',uid).orderBy('date','desc').limit(10);
-    const snapshot = await historyRef.get();
-    const tbody = document.getElementById('transactionHistory');
-    tbody.innerHTML = '';
-    if(snapshot.empty){
-      tbody.innerHTML = '<tr><td colspan="4">Aucune transaction</td></tr>';
-    } else {
-      snapshot.forEach(doc=>{
-        const t = doc.data();
-        const row = `<tr>
-          <td>${new Date(t.date.seconds*1000).toLocaleDateString()}</td>
-          <td>${t.type}</td>
-          <td>${t.amount.toFixed(2)} USDT</td>
-          <td>${t.balance.toFixed(2)} USDT</td>
-        </tr>`;
-        tbody.innerHTML += row;
-      });
+      document.getElementById('availableBalance').innerText = (data.balance || 0).toFixed(2)+" USDT";
+      document.getElementById('withdrawn').innerText = (data.withdrawn || 0).toFixed(2)+" USDT";
+      document.getElementById('totalEarnings').innerText = (data.totalEarnings || 0).toFixed(2)+" USDT";
     }
   }
 
-  function copyReferral(){
-    const refLink = `https://brs-riche.com/register.html?ref=${user.uid}`;
-    navigator.clipboard.writeText(refLink);
-    alert('Lien parrain copié !');
+  async function loadProducts(){
+    const db = firebase.firestore();
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = '';
+
+    // Exemple : récupérer tous les hôtels disponibles
+    const hotelsSnapshot = await db.collection('hotels').where('status','==','available').get();
+    hotelsSnapshot.forEach(doc=>{
+      const h = doc.data();
+      grid.innerHTML += `<div class="product-card">
+        <img src="${h.image}" alt="${h.name}">
+        <h4>${h.name}</h4>
+        <p>${h.description || ''}</p>
+      </div>`;
+    });
+
+    // Idem pour les résidences
+    const resSnapshot = await db.collection('residences').where('status','==','available').get();
+    resSnapshot.forEach(doc=>{
+      const r = doc.data();
+      grid.innerHTML += `<div class="product-card">
+        <img src="${r.image}" alt="${r.name}">
+        <h4>${r.name}</h4>
+        <p>${r.description || ''}</p>
+      </div>`;
+    });
+
+    if(grid.innerHTML === ''){
+      grid.innerHTML = '<p style="text-align:center; width:100%;">Aucun produit disponible.</p>';
+    }
   }
+
+  // Bloquer zoom (ctrl + molette)
+  document.addEventListener('wheel', function(e){ if(e.ctrlKey) e.preventDefault(); }, {passive:false});
+  document.addEventListener('keydown', function(e){
+    if((e.ctrlKey||e.metaKey) && ['+','-','0'].includes(e.key)) e.preventDefault();
+  });
+
 </script>
 
 </body>
-    </html>
-        
+  </html>
+  
