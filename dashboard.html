@@ -1,112 +1,195 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Dashboard | Mebi Life</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-  body { margin:0; font-family: 'Segoe UI', sans-serif; background:#f5f7fa; -webkit-user-select:none; user-select:none; overflow-x:hidden; }
-  #dashboard { max-width:1100px; margin:0 auto; padding:20px; }
-  .top-blocks { display:flex; justify-content:space-around; gap:12px; margin-bottom:20px; }
-  .block { background:#fff; flex:1; padding:20px; border-radius:12px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
-  .block h3 { margin:0 0 10px; color:#1976d2; }
-  .block p { font-size:1.2em; margin:0; }
-  .menu { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-bottom:30px; }
-  .menu button { flex:1 1 120px; padding:14px; border:none; border-radius:12px; background:#0d47a1; color:#fff; font-weight:bold; cursor:pointer; transition:transform .2s; }
-  .menu button:hover { transform:translateY(-2px); }
-  .data-section { background:#fff; border-radius:12px; padding:20px; margin-bottom:20px; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
-  .data-section h2 { text-align:center; margin-bottom:16px; color:#0d47a1; }
-  table { width:100%; border-collapse:collapse; }
-  th,td { padding:10px; border:1px solid #e5e7eb; text-align:center; }
-  th { background:#f1f5ff; color:#0d47a1; }
-  @media (max-width:768px){
-    .top-blocks { flex-direction:column; }
-    .menu button { flex:1 1 45%; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Dashboard - BRS Riche</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    body {
+      font-family:'Segoe UI',sans-serif;
+      margin:0; padding:0;
+      background:#f4f7fb;
+      color:#333;
+      -webkit-user-select:none; -moz-user-select:none; user-select:none;
+    }
+    header {
+      background: linear-gradient(135deg,#0d47a1,#1976d2);
+      color:#fff;
+      padding:20px;
+      text-align:center;
+      border-bottom-left-radius:14px;
+      border-bottom-right-radius:14px;
+    }
+    header h1 { margin:0; font-size:1.8em; }
+    header .btn-logout {
+      background:#ffcc00;
+      color:#0d47a1;
+      border:none;
+      border-radius:10px;
+      padding:8px 16px;
+      cursor:pointer;
+      font-weight:bold;
+      margin-top:10px;
+      transition:.3s;
+    }
+    header .btn-logout:hover { background:#ffc107; }
+
+    .container { max-width: 1000px; margin:auto; padding:20px; }
+
+    .cards { display:flex; flex-wrap:wrap; gap:18px; justify-content:center; margin-bottom:20px; }
+    .card {
+      flex:1 1 280px;
+      max-width:340px;
+      background:#fff;
+      border-radius:14px;
+      padding:22px;
+      box-shadow:0 8px 24px rgba(0,0,0,0.08);
+      text-align:center;
+      transition: transform .2s;
+    }
+    .card:hover { transform: translateY(-4px); }
+    .card i { font-size:2em; color:#0d47a1; margin-bottom:10px; }
+
+    .btn-action {
+      display:inline-block;
+      padding:12px 24px;
+      border-radius:12px;
+      font-weight:bold;
+      text-decoration:none;
+      margin:6px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.15);
+      transition:.3s;
+    }
+    .btn-deposit { background:#2e7d32; color:#fff; }
+    .btn-withdraw { background:#c62828; color:#fff; }
+    .btn-copy { background:#0d47a1; color:#fff; }
+
+    table { width:100%; border-collapse:collapse; margin-top:20px; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.08); }
+    table th, table td { padding:12px; text-align:center; border-bottom:1px solid #eee; }
+    table th { background:#0d47a1; color:#fff; }
+    table tr:last-child td { border-bottom:none; }
+
+    @media(max-width:768px){
+      .cards { flex-direction:column; align-items:center; }
+      table th, table td { font-size:.9em; padding:8px; }
+    }
+  </style>
 </head>
-<body>
-<div id="dashboard">
-  <!-- Top Blocks -->
-  <div class="top-blocks">
-    <div class="block"><h3>Disponible</h3><p id="available">0 USDT</p></div>
-    <div class="block"><h3>Retiré</h3><p id="withdrawn">0 USDT</p></div>
-    <div class="block"><h3>Gains Total</h3><p id="total">0 USDT</p></div>
+<body oncopy="return false" oncut="return false" onpaste="return false" oncontextmenu="return false">
+
+<header>
+  <h1>💸 Bienvenue, <span id="userName">Utilisateur</span></h1>
+  <button class="btn-logout" onclick="logout()">Se déconnecter</button>
+</header>
+
+<div class="container">
+
+  <!-- SOLDE ET GAIN -->
+  <div class="cards">
+    <div class="card">
+      <i class="fas fa-wallet"></i>
+      <h3>Solde Actif</h3>
+      <p id="balance">0 USDT</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-coins"></i>
+      <h3>Total Gains</h3>
+      <p id="totalEarnings">0 USDT</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-user-friends"></i>
+      <h3>Invités</h3>
+      <p id="referrals">0</p>
+    </div>
   </div>
 
-  <!-- Menu -->
-  <div class="menu">
-    <button onclick="showSection('deposit')">Dépôt</button>
-    <button onclick="showSection('withdraw')">Retrait</button>
-    <button onclick="showSection('history')">Historique</button>
-    <button onclick="showSection('hotels')">Hotels</button>
-    <button onclick="showSection('residences')">Residences</button>
+  <!-- ACTIONS RAPIDES -->
+  <div style="text-align:center; margin-bottom:20px;">
+    <a href="deposit.html" class="btn-action btn-deposit"><i class="fas fa-arrow-up"></i> Déposer</a>
+    <a href="withdraw.html" class="btn-action btn-withdraw"><i class="fas fa-arrow-down"></i> Retirer</a>
+    <button class="btn-action btn-copy" onclick="copyReferral()"><i class="fas fa-copy"></i> Copier lien parrain</button>
   </div>
 
-  <!-- Sections dynamiques -->
-  <div id="deposit" class="data-section" style="display:none;">
-    <h2>Dépôt</h2>
-    <p>Formulaire dépôt ici...</p>
-  </div>
-  <div id="withdraw" class="data-section" style="display:none;">
-    <h2>Retrait</h2>
-    <p>Formulaire retrait ici...</p>
-  </div>
-  <div id="history" class="data-section" style="display:none;">
-    <h2>Historique des transactions</h2>
-    <table>
-      <thead><tr><th>Date</th><th>Type</th><th>Montant</th><th>Solde</th></tr></thead>
-      <tbody id="history-table"></tbody>
-    </table>
-  </div>
-  <div id="hotels" class="data-section" style="display:none;">
-    <h2>Hotels Disponibles</h2>
-    <div id="hotels-list">Chargement...</div>
-  </div>
-  <div id="residences" class="data-section" style="display:none;">
-    <h2>Residences Disponibles</h2>
-    <div id="residences-list">Chargement...</div>
-  </div>
+  <!-- HISTORIQUE DES TRANSACTIONS -->
+  <h2 style="text-align:center; color:#0d47a1; margin-bottom:12px;">📜 Historique des Transactions</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Type</th>
+        <th>Montant</th>
+        <th>Solde</th>
+      </tr>
+    </thead>
+    <tbody id="transactionHistory">
+      <tr><td colspan="4">Chargement...</td></tr>
+    </tbody>
+  </table>
+
 </div>
 
+<script src="firebase-init.js"></script>
 <script>
-  function showSection(id){
-    document.querySelectorAll('.data-section').forEach(s=>s.style.display='none');
-    document.getElementById(id).style.display='block';
+  // Variables Firebase
+  let user = null;
+
+  firebase.auth().onAuthStateChanged(u => {
+    if(u){ 
+      user = u;
+      document.getElementById('userName').innerText = user.email.split('@')[0];
+      loadDashboard();
+    } else { 
+      window.location.href = "login.html"; 
+    }
+  });
+
+  function logout(){
+    firebase.auth().signOut().then(()=>{ window.location.href="login.html"; });
   }
 
-  // Exemple simple d'affichage gains depuis DB (à remplacer par appel réel Firebase / SQL)
-  const userData = { available:50, withdrawn:20, total:70, history:[
-    {date:'2025-09-03', type:'Deposit', amount:50, balance:50},
-    {date:'2025-09-03', type:'Withdraw', amount:20, balance:30}
-  ], hotels:['Hotel A','Hotel B'], residences:['Résidence X']};
+  async function loadDashboard(){
+    const db = firebase.firestore();
+    const uid = user.uid;
 
-  document.getElementById('available').innerText = userData.available + ' USDT';
-  document.getElementById('withdrawn').innerText = userData.withdrawn + ' USDT';
-  document.getElementById('total').innerText = userData.total + ' USDT';
+    // Solde
+    const userDoc = await db.collection('users').doc(uid).get();
+    if(userDoc.exists){
+      const data = userDoc.data();
+      document.getElementById('balance').innerText = data.balance.toFixed(2) + " USDT";
+      document.getElementById('totalEarnings').innerText = (data.totalEarnings || 0).toFixed(2) + " USDT";
+      document.getElementById('referrals').innerText = data.referrals || 0;
+    }
 
-  const historyTable = document.getElementById('history-table');
-  userData.history.forEach(h=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${h.date}</td><td>${h.type}</td><td>${h.amount}</td><td>${h.balance}</td>`;
-    historyTable.appendChild(tr);
-  });
+    // Historique
+    const historyRef = db.collection('transactions').where('userId','==',uid).orderBy('date','desc').limit(10);
+    const snapshot = await historyRef.get();
+    const tbody = document.getElementById('transactionHistory');
+    tbody.innerHTML = '';
+    if(snapshot.empty){
+      tbody.innerHTML = '<tr><td colspan="4">Aucune transaction</td></tr>';
+    } else {
+      snapshot.forEach(doc=>{
+        const t = doc.data();
+        const row = `<tr>
+          <td>${new Date(t.date.seconds*1000).toLocaleDateString()}</td>
+          <td>${t.type}</td>
+          <td>${t.amount.toFixed(2)} USDT</td>
+          <td>${t.balance.toFixed(2)} USDT</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+  }
 
-  document.getElementById('hotels-list').innerHTML = userData.hotels.join('<br>');
-  document.getElementById('residences-list').innerHTML = userData.residences.join('<br>');
-
-  // Anti-copy, anti-zoom
-  ['copy','cut','paste','contextmenu','selectstart','dragstart'].forEach(evt => {
-    document.body.addEventListener(evt, e=>e.preventDefault(), {passive:false});
-  });
-  document.addEventListener('keydown', e=>{
-    if ((e.ctrlKey||e.metaKey) && ['c','x','s','p','u','+','=','-','0'].includes(e.key.toLowerCase())) e.preventDefault();
-  });
-  ['gesturestart','gesturechange','gestureend'].forEach(evt=>{
-    document.addEventListener(evt,e=>e.preventDefault(), {passive:false});
-  });
-  document.addEventListener('wheel', e=>{if(e.ctrlKey)e.preventDefault();},{passive:false});
+  function copyReferral(){
+    const refLink = `https://brs-riche.com/register.html?ref=${user.uid}`;
+    navigator.clipboard.writeText(refLink);
+    alert('Lien parrain copié !');
+  }
 </script>
+
 </body>
-</html>
+    </html>
+        
