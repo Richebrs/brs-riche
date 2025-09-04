@@ -7,168 +7,109 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <style>
-body { font-family:'Segoe UI',sans-serif; margin:0; padding:0; background:#f4f7fb; color:#333; display:none; user-select:none;}
+body { font-family:'Segoe UI',sans-serif; margin:0; padding:0; background:#f4f7fb; color:#333; user-select:none; }
 header { background:#0d47a1; color:#fff; padding:20px; text-align:center; }
-header h1 { margin:0; font-size:1.5em; }
+header h1 { margin:0; font-size:1.6em; }
 
-.balances { display:flex; justify-content:space-around; margin:20px 10px; text-align:center; flex-wrap:wrap; }
-.balance-box { background:#fff; flex:1 1 100px; margin:5px; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+/* --- Grande carte des soldes --- */
+.balance-card {
+  background:#fff;
+  margin:20px;
+  padding:20px;
+  border-radius:16px;
+  box-shadow:0 6px 16px rgba(0,0,0,0.15);
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+}
+.balance-box { flex:1; text-align:center; }
 .balance-box h3 { margin:0; font-size:1em; color:#0d47a1; }
-.balance-box p { margin:5px 0 0; font-size:1.2em; font-weight:bold; }
+.balance-box p { margin:8px 0 0; font-size:1.4em; font-weight:bold; }
 
-.menu { display:flex; flex-wrap:wrap; justify-content:center; margin:20px 10px; gap:15px; }
-.menu a { flex: 1 1 calc(33% - 20px); min-width:100px; background:#ffcc00; color:#0d47a1; border-radius:14px; text-align:center; font-weight:bold; text-decoration:none; padding:20px 10px; box-shadow:0 6px 14px rgba(0,0,0,0.15); transition: transform 0.2s, background 0.2s; }
-.menu a i { display:block; font-size:2em; margin-bottom:8px; }
+/* --- Bouton historique --- */
+.history-btn {
+  display:block;
+  margin:10px 20px;
+  padding:15px;
+  text-align:center;
+  font-size:1.1em;
+  font-weight:bold;
+  color:#fff;
+  background:#ff9800;
+  border-radius:12px;
+  text-decoration:none;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  transition:background 0.2s;
+}
+.history-btn:hover { background:#e68900; }
+
+/* --- Menus --- */
+.menu {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
+  gap:15px;
+  margin:20px;
+}
+.menu a {
+  background:#ffcc00;
+  color:#0d47a1;
+  border-radius:14px;
+  text-align:center;
+  font-weight:bold;
+  text-decoration:none;
+  padding:20px 10px;
+  box-shadow:0 6px 14px rgba(0,0,0,0.15);
+  transition:transform 0.2s, background 0.2s;
+}
+.menu a i {
+  display:block;
+  font-size:2em;
+  margin-bottom:8px;
+}
 .menu a:hover { transform:translateY(-4px); background:#e6b800; }
 
-.section { padding:20px 10px; }
-.section h2 { text-align:center; color:#0d47a1; margin-bottom:15px; }
-.cards { display:flex; flex-wrap:wrap; gap:15px; justify-content:center; }
-.card { background:#fff; padding:15px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); flex:1 1 200px; max-width:250px; text-align:center; }
-.card img { width:100%; border-radius:10px; }
-.card h3 { margin:10px 0 5px; color:#0d47a1; }
-.card p { margin:0; font-size:0.9em; }
-
-@media(max-width:768px){ .balances { flex-direction:column; } .balance-box { margin:5px 0; } .menu a { flex:1 1 45%; font-size:0.95em; padding:18px 8px; } .menu a i { font-size:1.8em; } }
-@media(max-width:480px){ .menu a { flex:1 1 90%; font-size:1em; padding:20px 10px; } .menu a i { font-size:2em; } }
+/* --- Responsive --- */
+@media(max-width:768px){
+  .balance-card { flex-direction:column; text-align:center; }
+}
 </style>
 </head>
-<body oncopy="return false" oncut="return false" onpaste="return false" oncontextmenu="return false">
+<body>
 
 <header>
   <h1>💎 Dashboard BRS Riche</h1>
 </header>
 
-<div class="balances">
+<!-- Grande carte des soldes -->
+<div class="balance-card">
   <div class="balance-box"><h3>Disponible</h3><p id="balance-available">$0.00</p></div>
   <div class="balance-box"><h3>Retiré</h3><p id="balance-withdrawn">$0.00</p></div>
-  <div class="balance-box"><h3>Gains Total</h3><p id="balance-total">$0.00</p></div>
+  <div class="balance-box"><h3>Total</h3><p id="balance-total">$0.00</p></div>
 </div>
 
+<!-- Bouton Historique -->
+<a href="history.html" class="history-btn"><i class="fas fa-history"></i> Mes Historiques</a>
+
+<!-- Menus -->
 <div class="menu">
   <a href="deposit.html"><i class="fas fa-wallet"></i>Dépôt</a>
   <a href="withdraw.html"><i class="fas fa-hand-holding-dollar"></i>Retrait</a>
   <a href="referral.html"><i class="fas fa-users"></i>Parrainage</a>
-  <a href="history.html"><i class="fas fa-history"></i>Historique</a>
   <a href="hotels.html"><i class="fas fa-hotel"></i>Hotels</a>
   <a href="residences.html"><i class="fas fa-building"></i>Residences</a>
-  <a href="my-hotels.html"><i class="fas fa-home"></i>My Hotels</a>
-  <a href="my-residences.html"><i class="fas fa-door-closed"></i>My Residences</a>
+  <a href="my-hotels.html"><i class="fas fa-home"></i>Mes Hotels</a>
+  <a href="my-residences.html"><i class="fas fa-door-closed"></i>Mes Residences</a>
+  <a href="profile.html"><i class="fas fa-user"></i>Profil</a>
 </div>
 
-<section class="section" id="catalogue-hotels">
-  <h2>🏨 Hotels disponibles</h2>
-  <div class="cards" id="hotels-cards"></div>
-</section>
-
-<section class="section" id="catalogue-residences">
-  <h2>🏢 Residences disponibles</h2>
-  <div class="cards" id="residences-cards"></div>
-</section>
-
-<section class="section" id="my-hotels-section">
-  <h2>🏠 Mes Hotels</h2>
-  <div class="cards" id="my-hotels-cards"></div>
-</section>
-
-<section class="section" id="my-residences-section">
-  <h2>🏡 Mes Residences</h2>
-  <div class="cards" id="my-residences-cards"></div>
-</section>
-
 <script>
-// Bloquer raccourcis copie/impression/zoom
-document.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey)&&['c','s','u','p','+','-','0'].includes(e.key.toLowerCase())) e.preventDefault(); });
-document.addEventListener('wheel', e => { if(e.ctrlKey) e.preventDefault(); }, {passive:false});
-
-// Config Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyDQ2UWK115OXfThwaGfetIUSPPz_Ry78BA",
-  authDomain: "brs-riche.firebaseapp.com",
-  projectId: "brs-riche",
-  storageBucket: "brs-riche.appspot.com",
-  messagingSenderId: "44338076148",
-  appId: "1:44338076148:web:b0c32d6caa12221fe601a1",
-  measurementId: "G-FQ5ZFB4FYM"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// Vérifier connexion utilisateur
-auth.onAuthStateChanged(user => {
-  if(user){
-    document.body.style.display = "block"; // afficher le dashboard
-
-    // Soldes utilisateur
-    db.collection('users').doc(user.uid).onSnapshot(doc=>{
-      if(doc.exists){
-        const data = doc.data();
-        document.getElementById('balance-available').innerText = `$${data.balanceAvailable.toFixed(2)}`;
-        document.getElementById('balance-withdrawn').innerText = `$${data.balanceWithdrawn.toFixed(2)}`;
-        document.getElementById('balance-total').innerText = `$${data.balanceTotal.toFixed(2)}`;
-      }
-    });
-
-    // Hotels publics
-    db.collection('hotels').where("reserved","==",false).get().then(snapshot=>{
-      const container = document.getElementById('hotels-cards');
-      snapshot.forEach(doc=>{
-        const data = doc.data();
-        const div = document.createElement('div');
-        div.className = 'card';
-        div.innerHTML = `<img src="${data.image}" alt="${data.name}"><h3>${data.name}</h3><p>Prix: $${data.price}/jour</p>`;
-        container.appendChild(div);
-      });
-    });
-
-    // Residences publics
-    db.collection('residences').where("reserved","==",false).get().then(snapshot=>{
-      const container = document.getElementById('residences-cards');
-      snapshot.forEach(doc=>{
-        const data = doc.data();
-        const div = document.createElement('div');
-        div.className = 'card';
-        div.innerHTML = `<img src="${data.image}" alt="${data.name}"><h3>${data.name}</h3><p>Prix: $${data.price}/jour</p>`;
-        container.appendChild(div);
-      });
-    });
-
-    // My Hotels
-    db.collection('hotels').where("reservedBy","==",user.uid).get().then(snapshot=>{
-      const container = document.getElementById('my-hotels-cards');
-      snapshot.forEach(doc=>{
-        const data = doc.data();
-        const div = document.createElement('div');
-        div.className = 'card';
-        div.innerHTML = `<img src="${data.image}" alt="${data.name}"><h3>${data.name}</h3><p>Prix: $${data.price}/jour</p>`;
-        container.appendChild(div);
-      });
-    });
-
-    // My Residences
-    db.collection('residences').where("reservedBy","==",user.uid).get().then(snapshot=>{
-      const container = document.getElementById('my-residences-cards');
-      snapshot.forEach(doc=>{
-        const data = doc.data();
-        const div = document.createElement('div');
-        div.className = 'card';
-        div.innerHTML = `<img src="${data.image}" alt="${data.name}"><h3>${data.name}</h3><p>Prix: $${data.price}/jour</p>`;
-        container.appendChild(div);
-      });
-    });
-
-  } else {
-    window.location.href="login.html"; // rediriger vers login si non connecté
-  }
-});
+// Exemple simple (les valeurs viendront de Firebase après)
+document.getElementById("balance-available").innerText = "$120.00";
+document.getElementById("balance-withdrawn").innerText = "$50.00";
+document.getElementById("balance-total").innerText = "$170.00";
 </script>
+
 </body>
-  </html>
-  
+                                                    </html>
+    
