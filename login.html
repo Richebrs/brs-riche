@@ -1,106 +1,65 @@
-
-<!-- Fichier : login.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Connexion | BRS Riche</title>
+  <title>Connexion - RICHE BRS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fa;
-      margin: 0; padding: 0;
-      display: flex; align-items: center; justify-content: center;
-      height: 100vh;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 100%; max-width: 400px;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #2d89ef;
-      border: none;
-      color: white;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #1b5fc6;
-    }
-    .link {
-      text-align: center;
-      margin-top: 12px;
-    }
+    body { font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0d47a1,#1565c0);margin:0;padding:0;}
+    .container{max-width:420px;margin:auto;padding:40px 20px;}
+    .card{background:#fff;padding:32px;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.2);}
+    .logo{text-align:center;margin-bottom:10px;}
+    .logo img{width:80px;height:80px;}
+    h1{text-align:center;color:#0d47a1;margin-bottom:20px;}
+    .form-group{margin-bottom:18px;}
+    label{font-weight:bold;display:block;margin-bottom:6px;}
+    input{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font-size:1em;}
+    button{width:100%;padding:14px;background:#0d47a1;color:#fff;border:none;border-radius:12px;font-size:1em;font-weight:bold;cursor:pointer;transition:.3s;}
+    button:hover{background:#1565c0;}
+    .link{text-align:center;margin-top:16px;font-size:.9em;}
+    .link a{color:#0d47a1;font-weight:bold;text-decoration:none;}
+    .msg{margin-top:15px;padding:10px;border-radius:8px;text-align:center;display:none;}
+    .success{background:#e8f5e9;color:#2e7d32;}
+    .error{background:#ffebee;color:#c62828;}
   </style>
 </head>
-<body>
-  <div class="card" id="app">
-    <h2>Se connecter</h2>
-    <input v-model="form.login.email" type="email" placeholder="Email" required>
-    <input v-model="form.login.password" type="password" placeholder="Mot de passe" required>
-    <button @click="login">Connexion</button>
-
-    <p style="color:green;" v-if="message">{{message}}</p>
-    <p style="color:red;" v-if="error">{{error}}</p>
-
+<body oncontextmenu="return false">
+<div class="container">
+  <div class="card">
+    <div class="logo"><img src="logo.png" alt="RICHE BRS"></div>
+    <h1>Se connecter</h1>
+    <form id="loginForm">
+      <div class="form-group"><label>Email</label><input type="email" id="email" required></div>
+      <div class="form-group"><label>Mot de passe</label><input type="password" id="password" required></div>
+      <button type="submit">Connexion</button>
+    </form>
+    <div id="msgBox" class="msg"></div>
     <div class="link">
-      <a href="register.html">Créer un compte</a>
+      <p>Pas encore inscrit ? <a href="register.html">Créer un compte</a></p>
+      <p><a href="reset.html">Mot de passe oublié ?</a></p>
     </div>
   </div>
+</div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <script src="firebase-init.js"></script>
-
-  <!-- Vue.js -->
-  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-
-  <script>
-    const { createApp } = Vue;
-    createApp({
-      data() {
-        return {
-          form: { login: { email: "", password: "" } },
-          message: "", error: ""
-        };
-      },
-      methods: {
-        async login() {
-          this.error = this.message = "";
-          try {
-            const userCredential = await auth.signInWithEmailAndPassword(
-              this.form.login.email.trim(),
-              this.form.login.password
-            );
-
-            this.message = "Connexion réussie ✅";
-            setTimeout(()=>{ window.location.href="dashboard.html"; }, 800);
-          } catch(e) {
-            this.error = e.message;
-          }
-        }
-      }
-    }).mount('#app');
-  </script>
+<script src="firebase-init.js"></script>
+<script>
+const form=document.getElementById('loginForm');
+const msgBox=document.getElementById('msgBox');
+form.addEventListener('submit',async e=>{
+  e.preventDefault(); msgBox.style.display="none";
+  const email=document.getElementById('email').value.trim();
+  const pass=document.getElementById('password').value;
+  try{
+    await auth.signInWithEmailAndPassword(email,pass);
+    showMsg("✅ Connexion réussie !","success");
+    setTimeout(()=>window.location.href="dashboard.html",1200);
+  }catch(err){
+    if(err.code==="auth/user-not-found")showMsg("⚠️ Utilisateur introuvable.","error");
+    else if(err.code==="auth/wrong-password")showMsg("⚠️ Mot de passe incorrect.","error");
+    else showMsg("Erreur : "+err.message,"error");
+  }
+});
+function showMsg(txt,type){msgBox.innerText=txt;msgBox.className="msg "+type;msgBox.style.display="block";}
+</script>
 </body>
 </html>
