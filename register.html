@@ -1,113 +1,82 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Inscription - RICHE BRS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <style>
-    body { font-family: 'Segoe UI', sans-serif; margin:0; padding:0; background:linear-gradient(135deg,#0d47a1,#1565c0); -webkit-user-select:none; -moz-user-select:none; user-select:none; }
-    .container { max-width:420px; margin:auto; padding:40px 20px; }
-    .card { background:#fff; border-radius:16px; padding:32px; box-shadow:0 8px 25px rgba(0,0,0,0.2); animation:fadeIn .5s ease; }
-    @keyframes fadeIn { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
-    h1 { text-align:center; color:#0d47a1; margin-bottom:20px; }
-    .logo { text-align:center; margin-bottom:10px; }
-    .logo img { width:80px; height:80px; }
-    .form-group { margin-bottom:18px; }
-    label { font-weight:bold; display:block; margin-bottom:6px; }
-    small { display:block; color:#666; font-size:.8em; margin-top:3px; }
-    input { width:100%; padding:12px; border:1px solid #ccc; border-radius:10px; font-size:1em; }
-    button { width:100%; padding:14px; background:#0d47a1; color:#fff; border:none; border-radius:12px; font-size:1em; font-weight:bold; cursor:pointer; transition:.3s; }
-    button:hover { background:#1565c0; }
-    .link { text-align:center; margin-top:16px; }
-    .link a { color:#0d47a1; font-weight:bold; text-decoration:none; }
-    .msg { margin-top:15px; padding:10px; border-radius:8px; text-align:center; display:none; }
-    .success { background:#e8f5e9; color:#2e7d32; }
-    .error { background:#ffebee; color:#c62828; }
-  </style>
+<meta charset="UTF-8">
+<title>Créer un compte - BRS Riche</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body { font-family:'Segoe UI',sans-serif; background:linear-gradient(135deg,#0d47a1,#1565c0); margin:0; padding:0; }
+  .container{max-width:420px;margin:auto;padding:40px 20px;}
+  .card{background:#fff;padding:32px;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.2);}
+  .logo{text-align:center;margin-bottom:10px;}
+  .logo img{width:80px;height:80px;}
+  h1{text-align:center;color:#0d47a1;margin-bottom:20px;}
+  .form-group{margin-bottom:18px;}
+  label{font-weight:bold;display:block;margin-bottom:6px;}
+  input{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font-size:1em;}
+  button{width:100%;padding:14px;background:#0d47a1;color:#fff;border:none;border-radius:12px;font-size:1em;font-weight:bold;cursor:pointer;transition:.3s;}
+  button:hover{background:#1565c0;}
+  .link{text-align:center;margin-top:16px;font-size:.9em;}
+  .link a{color:#0d47a1;font-weight:bold;text-decoration:none;}
+  .msg{margin-top:15px;padding:10px;border-radius:8px;text-align:center;display:none;}
+  .success{background:#e8f5e9;color:#2e7d32;}
+  .error{background:#ffebee;color:#c62828;}
+</style>
 </head>
-<body oncontextmenu="return false" oncopy="return false">
-
+<body oncontextmenu="return false">
 <div class="container">
   <div class="card">
-    <div class="logo"><img src="logo.png" alt="RICHE BRS"></div>
+    <div class="logo"><img src="logo.png" alt="BRS Riche"></div>
     <h1>Créer un compte</h1>
     <form id="registerForm">
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="email" required>
-        <small>Utilisez une adresse email valide</small>
-      </div>
-      <div class="form-group">
-        <label>Mot de passe</label>
-        <input type="password" id="password" minlength="6" required>
-        <small>Minimum 6 caractères, avec chiffres et lettres</small>
-      </div>
-      <div class="form-group">
-        <label>Confirmer mot de passe</label>
-        <input type="password" id="confirmPassword" required>
-        <small>Répétez le même mot de passe</small>
-      </div>
-      <div class="form-group">
-        <label>Code parrain (optionnel)</label>
-        <input type="text" id="sponsor">
-      </div>
+      <div class="form-group"><label>Email</label><input type="email" id="email" required></div>
+      <div class="form-group"><label>Mot de passe</label><input type="password" id="password" required></div>
       <button type="submit">S'inscrire</button>
     </form>
     <div id="msgBox" class="msg"></div>
-    <div class="link">Déjà un compte ? <a href="login.html">Connectez-vous</a></div>
+    <div class="link">
+      <p>Déjà inscrit ? <a href="login.html">Se connecter</a></p>
+    </div>
   </div>
 </div>
 
-<!-- Firebase App SDK -->
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDQ2UWK115OXfThwaGfetIUSPPz_Ry78BA",
-    authDomain: "brs-riche.firebaseapp.com",
-    projectId: "brs-riche",
-    storageBucket: "brs-riche.appspot.com",
-    messagingSenderId: "44338076148",
-    appId: "1:44338076148:web:b0c32d6caa12221fe601a1",
-    measurementId: "G-FQ5ZFB4FYM"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+const firebaseConfig = {
+  apiKey: "AIzaSyDQ2UWK115OXfThwaGfetIUSPPz_Ry78BA",
+  authDomain: "brs-riche.firebaseapp.com",
+  projectId: "brs-riche",
+  storageBucket: "brs-riche.appspot.com",
+  messagingSenderId: "44338076148",
+  appId: "1:44338076148:web:b0c32d6caa12221fe601a1"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
-  const form=document.getElementById('registerForm');
-  const msgBox=document.getElementById('msgBox');
+const form = document.getElementById('registerForm');
+const msgBox = document.getElementById('msgBox');
 
-  form.addEventListener('submit', async e=>{
-    e.preventDefault(); msgBox.style.display="none";
-    const email=document.getElementById('email').value.trim();
-    const pass=document.getElementById('password').value;
-    const confirm=document.getElementById('confirmPassword').value;
-    const sponsor=document.getElementById('sponsor').value;
+form.addEventListener('submit', async e => {
+  e.preventDefault(); msgBox.style.display="none";
+  const email = document.getElementById('email').value.trim();
+  const pass = document.getElementById('password').value;
+  try{
+    await auth.createUserWithEmailAndPassword(email, pass);
+    showMsg("✅ Compte créé avec succès ! Redirection...", "success");
+    setTimeout(()=>window.location.href="dashboard.html",1200);
+  }catch(err){
+    if(err.code==="auth/email-already-in-use") showMsg("⚠️ Cet email est déjà utilisé.","error");
+    else if(err.code==="auth/weak-password") showMsg("⚠️ Mot de passe trop faible.","error");
+    else showMsg("Erreur : "+err.message,"error");
+  }
+});
 
-    if(pass!==confirm){showMsg("❌ Les mots de passe ne correspondent pas","error");return;}
-
-    try{
-      const userCred=await auth.createUserWithEmailAndPassword(email,pass);
-      await db.collection('users').doc(userCred.user.uid).set({
-        email:email,
-        sponsor:sponsor||null,
-        balance:0,
-        createdAt:new Date()
-      });
-      showMsg("✅ Compte créé avec succès !","success");
-      setTimeout(()=>window.location.href="dashboard.html",1200);
-    }catch(err){
-      if(err.code==="auth/email-already-in-use") showMsg("⚠️ Cet email est déjà utilisé.","error");
-      else if(err.code==="auth/weak-password") showMsg("⚠️ Mot de passe trop faible.","error");
-      else showMsg("Erreur : "+err.message,"error");
-    }
-  });
-
-  function showMsg(txt,type){msgBox.innerText=txt;msgBox.className="msg "+type;msgBox.style.display="block";}
+function showMsg(txt,type){msgBox.innerText=txt;msgBox.className="msg "+type;msgBox.style.display="block";}
 </script>
 </body>
 </html>
+
+  
