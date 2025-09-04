@@ -59,32 +59,55 @@
   </div>
 </div>
 
-<script src="firebase-init.js"></script>
+<!-- Firebase App SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
 <script>
-const form=document.getElementById('registerForm');
-const msgBox=document.getElementById('msgBox');
-form.addEventListener('submit',async e=>{
-  e.preventDefault(); msgBox.style.display="none";
-  const email=document.getElementById('email').value.trim();
-  const pass=document.getElementById('password').value;
-  const confirm=document.getElementById('confirmPassword').value;
-  const sponsor=document.getElementById('sponsor').value;
-  if(pass!==confirm){showMsg("❌ Les mots de passe ne correspondent pas","error");return;}
-  try{
-    const userCred=await auth.createUserWithEmailAndPassword(email,pass);
-    await db.collection('users').doc(userCred.user.uid).set({
-      email:email,sponsor:sponsor||null,balance:0,createdAt:new Date()
-    });
-    showMsg("✅ Compte créé avec succès !","success");
-    setTimeout(()=>window.location.href="dashboard.html",1200);
-  }catch(err){
-    if(err.code==="auth/email-already-in-use")showMsg("⚠️ Cet email est déjà utilisé.","error");
-    else if(err.code==="auth/weak-password")showMsg("⚠️ Mot de passe trop faible.","error");
-    else showMsg("Erreur : "+err.message,"error");
-  }
-});
-function showMsg(txt,type){msgBox.innerText=txt;msgBox.className="msg "+type;msgBox.style.display="block";}
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQ2UWK115OXfThwaGfetIUSPPz_Ry78BA",
+    authDomain: "brs-riche.firebaseapp.com",
+    projectId: "brs-riche",
+    storageBucket: "brs-riche.appspot.com",
+    messagingSenderId: "44338076148",
+    appId: "1:44338076148:web:b0c32d6caa12221fe601a1",
+    measurementId: "G-FQ5ZFB4FYM"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const form=document.getElementById('registerForm');
+  const msgBox=document.getElementById('msgBox');
+
+  form.addEventListener('submit', async e=>{
+    e.preventDefault(); msgBox.style.display="none";
+    const email=document.getElementById('email').value.trim();
+    const pass=document.getElementById('password').value;
+    const confirm=document.getElementById('confirmPassword').value;
+    const sponsor=document.getElementById('sponsor').value;
+
+    if(pass!==confirm){showMsg("❌ Les mots de passe ne correspondent pas","error");return;}
+
+    try{
+      const userCred=await auth.createUserWithEmailAndPassword(email,pass);
+      await db.collection('users').doc(userCred.user.uid).set({
+        email:email,
+        sponsor:sponsor||null,
+        balance:0,
+        createdAt:new Date()
+      });
+      showMsg("✅ Compte créé avec succès !","success");
+      setTimeout(()=>window.location.href="dashboard.html",1200);
+    }catch(err){
+      if(err.code==="auth/email-already-in-use") showMsg("⚠️ Cet email est déjà utilisé.","error");
+      else if(err.code==="auth/weak-password") showMsg("⚠️ Mot de passe trop faible.","error");
+      else showMsg("Erreur : "+err.message,"error");
+    }
+  });
+
+  function showMsg(txt,type){msgBox.innerText=txt;msgBox.className="msg "+type;msgBox.style.display="block";}
 </script>
 </body>
-          </html>
-        
+</html>
