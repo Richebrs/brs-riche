@@ -23,7 +23,7 @@ header {
 header h1 { margin:0; font-size:1.6em; }
 header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 
-/* --- Langue --- */
+/* Langue */
 .lang-dropdown { position:absolute; top:20px; right:20px; }
 .lang-btn { cursor:pointer; font-size:1.3em; }
 .lang-menu {
@@ -33,7 +33,7 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 .lang-menu div { padding:8px 12px; cursor:pointer; }
 .lang-menu div:hover { background:#f0f0f0; }
 
-/* --- Grande carte des soldes --- */
+/* Carte des soldes */
 .balance-card {
   background:#fff; margin:20px; padding:20px; border-radius:16px;
   box-shadow:0 6px 16px rgba(0,0,0,0.15);
@@ -43,7 +43,7 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 .balance-box h3 { margin:0; font-size:1em; color:#0d47a1; }
 .balance-box p { margin:8px 0 0; font-size:1.4em; font-weight:bold; }
 
-/* --- Bouton historique --- */
+/* Bouton historique */
 .history-btn {
   display:block; margin:10px 20px; padding:15px;
   text-align:center; font-size:1.1em; font-weight:bold;
@@ -54,7 +54,7 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 }
 .history-btn:hover { background:#e68900; }
 
-/* --- Menus --- */
+/* Menu */
 .menu {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
@@ -67,12 +67,10 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
   box-shadow:0 6px 14px rgba(0,0,0,0.15);
   transition:transform 0.2s, background 0.2s;
 }
-.menu a i {
-  display:block; font-size:2em; margin-bottom:8px;
-}
+.menu a i { display:block; font-size:2em; margin-bottom:8px; }
 .menu a:hover { transform:translateY(-4px); background:#e6b800; }
 
-/* --- Bouton Présentation --- */
+/* Bouton Présentation */
 .presentation-btn {
   display:block; margin:20px auto; padding:15px 25px;
   background:#0d47a1; color:#fff; font-size:1.2em; font-weight:bold;
@@ -81,7 +79,7 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 }
 .presentation-btn:hover { background:#08306b; }
 
-/* --- Panel Présentation (élastique) --- */
+/* Panel Présentation */
 .presentation-panel {
   position:fixed; bottom:-100%; left:0; right:0;
   background:#fff; border-radius:20px 20px 0 0;
@@ -93,11 +91,9 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 .presentation-panel h2 { margin-top:0; color:#0d47a1; }
 .presentation-panel p { line-height:1.5; }
 
-/* Handle élastique */
-.panel-handle {
-  width:50px; height:6px; background:#ccc;
-  border-radius:3px; margin:0 auto 15px;
-}
+/* Handle */
+.panel-handle { width:50px; height:6px; background:#ccc; border-radius:3px; margin:0 auto 15px; }
+
 @media(max-width:768px){
   .balance-card { flex-direction:column; text-align:center; }
 }
@@ -118,17 +114,17 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
   </div>
 </header>
 
-<!-- Grande carte des soldes -->
+<!-- Carte des soldes -->
 <div class="balance-card">
   <div class="balance-box"><h3 id="lbl-disponible">Disponible</h3><p id="balance-available">$0.00</p></div>
   <div class="balance-box"><h3 id="lbl-retire">Retiré</h3><p id="balance-withdrawn">$0.00</p></div>
   <div class="balance-box"><h3 id="lbl-total">Total</h3><p id="balance-total">$0.00</p></div>
 </div>
 
-<!-- Bouton Historique -->
+<!-- Historique -->
 <a href="history.html" class="history-btn" id="btn-history"><i class="fas fa-history"></i> Mes Historiques</a>
 
-<!-- Menus -->
+<!-- Menu -->
 <div class="menu">
   <a href="deposit.html"><i class="fas fa-wallet"></i><span id="menu-deposit">Dépôt</span></a>
   <a href="withdraw.html"><i class="fas fa-hand-holding-dollar"></i><span id="menu-withdraw">Retrait</span></a>
@@ -140,10 +136,8 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
   <a href="profile.html"><i class="fas fa-user"></i><span id="menu-profile">Profil</span></a>
 </div>
 
-<!-- Bouton Présentation -->
+<!-- Présentation -->
 <button class="presentation-btn" id="open-presentation">📖 Présentation</button>
-
-<!-- Panel Présentation -->
 <div class="presentation-panel" id="presentation-panel">
   <div class="panel-handle"></div>
   <h2>Présentation du Projet</h2>
@@ -161,7 +155,7 @@ document.addEventListener("copy", e=>e.preventDefault());
 document.addEventListener("cut", e=>e.preventDefault());
 document.addEventListener("contextmenu", e=>e.preventDefault());
 
-// Config Firebase
+// Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDQ2UWK115OXfThwaGfetIUSPPz_Ry78BA",
   authDomain: "brs-riche.firebaseapp.com",
@@ -177,80 +171,54 @@ const db = firebase.firestore();
 
 // Traductions
 const translations = {
-  fr: {
-    title:"💎 Dashboard BRS Riche",
-    disponible:"Disponible", retire:"Retiré", total:"Total",
-    history:"📜 Mes Historiques",
-    deposit:"Dépôt", withdraw:"Retrait", referral:"Parrainage",
-    hotels:"Hotels", residences:"Résidences", myHotels:"Mes Hotels",
-    myResidences:"Mes Résidences", profile:"Profil",
-    hello:"Bonjour"
-  },
-  en: {
-    title:"💎 BRS Riche Dashboard",
-    disponible:"Available", retire:"Withdrawn", total:"Total",
-    history:"📜 My History",
-    deposit:"Deposit", withdraw:"Withdraw", referral:"Referral",
-    hotels:"Hotels", residences:"Residences", myHotels:"My Hotels",
-    myResidences:"My Residences", profile:"Profile",
-    hello:"Hello"
-  },
-  es: {
-    title:"💎 Panel BRS Riche",
-    disponible:"Disponible", retire:"Retirado", total:"Total",
-    history:"📜 Mi Historial",
-    deposit:"Depósito", withdraw:"Retiro", referral:"Referidos",
-    hotels:"Hoteles", residences:"Residencias", myHotels:"Mis Hoteles",
-    myResidences:"Mis Residencias", profile:"Perfil",
-    hello:"Hola"
-  }
+  fr:{title:"💎 Dashboard BRS Riche",disponible:"Disponible",retire:"Retiré",total:"Total",
+      history:"📜 Mes Historiques",deposit:"Dépôt",withdraw:"Retrait",referral:"Parrainage",
+      hotels:"Hotels",residences:"Résidences",myHotels:"Mes Hotels",myResidences:"Mes Residences",profile:"Profil",hello:"Bonjour"},
+  en:{title:"💎 BRS Riche Dashboard",disponible:"Available",retire:"Withdrawn",total:"Total",
+      history:"📜 My History",deposit:"Deposit",withdraw:"Withdraw",referral:"Referral",
+      hotels:"Hotels",residences:"Residences",myHotels:"My Hotels",myResidences:"My Residences",profile:"Profile",hello:"Hello"},
+  es:{title:"💎 Panel BRS Riche",disponible:"Disponible",retire:"Retirado",total:"Total",
+      history:"📜 Mi Historial",deposit:"Depósito",withdraw:"Retiro",referral:"Referidos",
+      hotels:"Hoteles",residences:"Residencias",myHotels:"Mis Hoteles",myResidences:"Mis Residencias",profile:"Perfil",hello:"Hola"}
 };
 
-function setLang(lang, userName=""){
-  localStorage.setItem("lang", lang);
-  const t = translations[lang];
-  document.getElementById("title").innerText = t.title;
-  document.getElementById("lbl-disponible").innerText = t.disponible;
-  document.getElementById("lbl-retire").innerText = t.retire;
-  document.getElementById("lbl-total").innerText = t.total;
-  document.getElementById("btn-history").innerText = t.history;
-  document.getElementById("menu-deposit").innerText = t.deposit;
-  document.getElementById("menu-withdraw").innerText = t.withdraw;
-  document.getElementById("menu-referral").innerText = t.referral;
-  document.getElementById("menu-hotels").innerText = t.hotels;
-  document.getElementById("menu-residences").innerText = t.residences;
-  document.getElementById("menu-my-hotels").innerText = t.myHotels;
-  document.getElementById("menu-my-residences").innerText = t.myResidences;
-  document.getElementById("menu-profile").innerText = t.profile;
-  if(userName){
-    document.getElementById("user-info").innerText = `${t.hello}, ${userName}`;
-  }
+function setLang(lang,userName=""){
+  localStorage.setItem("lang",lang);
+  const t=translations[lang];
+  document.getElementById("title").innerText=t.title;
+  document.getElementById("lbl-disponible").innerText=t.disponible;
+  document.getElementById("lbl-retire").innerText=t.retire;
+  document.getElementById("lbl-total").innerText=t.total;
+  document.getElementById("btn-history").innerText=t.history;
+  document.getElementById("menu-deposit").innerText=t.deposit;
+  document.getElementById("menu-withdraw").innerText=t.withdraw;
+  document.getElementById("menu-referral").innerText=t.referral;
+  document.getElementById("menu-hotels").innerText=t.hotels;
+  document.getElementById("menu-residences").innerText=t.residences;
+  document.getElementById("menu-my-hotels").innerText=t.myHotels;
+  document.getElementById("menu-my-residences").innerText=t.myResidences;
+  document.getElementById("menu-profile").innerText=t.profile;
+  if(userName){ document.getElementById("user-info").innerText=`${t.hello}, ${userName}`; }
 }
 
-// Ouvrir / fermer menu langues
-const langBtn = document.querySelector(".lang-btn");
-const langMenu = document.getElementById("lang-menu");
-langBtn.addEventListener("click", ()=> {
-  langMenu.style.display = langMenu.style.display==="block" ? "none" : "block";
-});
-langMenu.querySelectorAll("div").forEach(el=>{
-  el.addEventListener("click", ()=>{
-    const lang = el.dataset.lang;
-    setLang(lang, currentUserName);
-    langMenu.style.display="none";
-  });
-});
+// Menu langues
+const langBtn=document.querySelector(".lang-btn");
+const langMenu=document.getElementById("lang-menu");
+langBtn.addEventListener("click",()=>{ langMenu.style.display=langMenu.style.display==="block"?"none":"block"; });
+langMenu.querySelectorAll("div").forEach(el=>{ el.addEventListener("click",()=>{
+  setLang(el.dataset.lang,currentUserName);
+  langMenu.style.display="none";
+});});
 
 let currentUserName="";
 
-// Vérifier si connecté
+// Auth
 auth.onAuthStateChanged(user=>{
   if(user){
     document.body.style.display="block";
-    currentUserName = user.displayName || user.email;
-    const savedLang = localStorage.getItem("lang") || "fr";
-    setLang(savedLang, currentUserName);
-
+    currentUserName=user.displayName||user.email;
+    const savedLang=localStorage.getItem("lang")||"fr";
+    setLang(savedLang,currentUserName);
     db.collection("users").doc(user.uid).onSnapshot(doc=>{
       if(doc.exists){
         const data=doc.data();
@@ -259,34 +227,20 @@ auth.onAuthStateChanged(user=>{
         document.getElementById("balance-total").innerText=`$${(data.balanceTotal||0).toFixed(2)}`;
       }
     });
-  } else {
-    window.location.href="login.html";
-  }
+  } else { window.location.href="login.html"; }
 });
 
-// Gestion panel présentation
-const panel = document.getElementById("presentation-panel");
-document.getElementById("open-presentation").addEventListener("click", ()=>{
-  panel.classList.add("active");
-});
-panel.addEventListener("click", e=>{
-  if(e.target.classList.contains("panel-handle")){
-    panel.classList.remove("active");
-  }
-});
+// Panel présentation
+const panel=document.getElementById("presentation-panel");
+document.getElementById("open-presentation").addEventListener("click",()=>{ panel.classList.add("active"); });
+panel.addEventListener("click",e=>{ if(e.target.classList.contains("panel-handle")) panel.classList.remove("active"); });
 
-// Geste tactile pour glisser panel
+// Glisser panel
 let startY=0;
-panel.addEventListener("touchstart", e=>{
-  startY=e.touches[0].clientY;
-});
-panel.addEventListener("touchmove", e=>{
-  let diff = e.touches[0].clientY - startY;
-  if(diff>50){ panel.classList.remove("active"); }
-});
+panel.addEventListener("touchstart",e=>{ startY=e.touches[0].clientY; });
+panel.addEventListener("touchmove",e=>{ if(e.touches[0].clientY-startY>50) panel.classList.remove("active"); });
 </script>
 
 </body>
   </html>
-
-                                                             
+                                                                                                            
