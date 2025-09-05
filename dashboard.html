@@ -14,11 +14,17 @@
 
 <style>
 body {
-  font-family:'Segoe UI',sans-serif; margin:0; padding:0;
-  background:#f4f7fb; color:#333; user-select:none; display:none; overflow-x:hidden;
+  font-family:'Segoe UI',sans-serif;
+  margin:0; padding:0;
+  background:#f4f7fb; color:#333;
+  user-select:none;
+  overscroll-behavior: contain; /* Effet élastique mobile */
+  display:none;
 }
 header {
-  background:#0d47a1; color:#fff; padding:20px; text-align:center; position:relative;
+  background:#0d47a1; color:#fff;
+  padding:20px; text-align:center;
+  position:relative;
 }
 header h1 { margin:0; font-size:1.6em; }
 header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
@@ -27,15 +33,20 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 .lang-dropdown { position:absolute; top:20px; right:20px; }
 .lang-btn { cursor:pointer; font-size:1.3em; }
 .lang-menu {
-  display:none; position:absolute; top:120%; right:0; background:#fff; color:#333;
-  border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.2); min-width:120px; z-index:10;
+  display:none; position:absolute; top:120%; right:0;
+  background:#fff; color:#333;
+  border-radius:8px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  min-width:120px; z-index:10;
 }
 .lang-menu div { padding:8px 12px; cursor:pointer; }
 .lang-menu div:hover { background:#f0f0f0; }
 
 /* --- Grande carte des soldes --- */
 .balance-card {
-  background:#fff; margin:20px; padding:20px; border-radius:16px;
+  background:#fff;
+  margin:20px; padding:20px;
+  border-radius:16px;
   box-shadow:0 6px 16px rgba(0,0,0,0.15);
   display:flex; justify-content:space-between; gap:20px;
 }
@@ -61,8 +72,9 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
   gap:15px; margin:20px;
 }
 .menu a {
-  background:#ffcc00; color:#0d47a1; border-radius:14px;
-  text-align:center; font-weight:bold; text-decoration:none;
+  background:#ffcc00; color:#0d47a1;
+  border-radius:14px; text-align:center;
+  font-weight:bold; text-decoration:none;
   padding:20px 10px;
   box-shadow:0 6px 14px rgba(0,0,0,0.15);
   transition:transform 0.2s, background 0.2s;
@@ -74,30 +86,17 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 
 /* --- Bouton Présentation --- */
 .presentation-btn {
-  display:block; margin:20px auto; padding:15px 25px;
-  background:#0d47a1; color:#fff; font-size:1.2em; font-weight:bold;
-  border:none; border-radius:14px; cursor:pointer;
+  display:block; margin:20px auto 30px auto; padding:15px;
+  text-align:center; font-size:1.1em; font-weight:bold;
+  color:#fff; background:#0d47a1;
+  border-radius:12px; text-decoration:none;
+  width:80%;
   box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  transition:background 0.2s;
 }
 .presentation-btn:hover { background:#08306b; }
 
-/* --- Panel Présentation (élastique) --- */
-.presentation-panel {
-  position:fixed; bottom:-100%; left:0; right:0;
-  background:#fff; border-radius:20px 20px 0 0;
-  box-shadow:0 -4px 20px rgba(0,0,0,0.2);
-  transition:bottom 0.3s ease-in-out;
-  padding:20px; z-index:20; max-height:80%; overflow-y:auto;
-}
-.presentation-panel.active { bottom:0; }
-.presentation-panel h2 { margin-top:0; color:#0d47a1; }
-.presentation-panel p { line-height:1.5; }
-
-/* Handle élastique */
-.panel-handle {
-  width:50px; height:6px; background:#ccc;
-  border-radius:3px; margin:0 auto 15px;
-}
+/* --- Responsive --- */
 @media(max-width:768px){
   .balance-card { flex-direction:column; text-align:center; }
 }
@@ -134,33 +133,18 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
   <a href="withdraw.html"><i class="fas fa-hand-holding-dollar"></i><span id="menu-withdraw">Retrait</span></a>
   <a href="referral.html"><i class="fas fa-users"></i><span id="menu-referral">Parrainage</span></a>
   <a href="hotels.html"><i class="fas fa-hotel"></i><span id="menu-hotels">Hotels</span></a>
-  <a href="residences.html"><i class="fas fa-building"></i><span id="menu-residences">Residences</span></a>
+  <a href="residences.html"><i class="fas fa-building"></i><span id="menu-residences">Résidences</span></a>
   <a href="my-hotels.html"><i class="fas fa-home"></i><span id="menu-my-hotels">Mes Hotels</span></a>
-  <a href="my-residences.html"><i class="fas fa-door-closed"></i><span id="menu-my-residences">Mes Residences</span></a>
+  <a href="my-residences.html"><i class="fas fa-door-closed"></i><span id="menu-my-residences">Mes Résidences</span></a>
   <a href="profile.html"><i class="fas fa-user"></i><span id="menu-profile">Profil</span></a>
 </div>
 
 <!-- Bouton Présentation -->
-<button class="presentation-btn" id="open-presentation">📖 Présentation</button>
-
-<!-- Panel Présentation -->
-<div class="presentation-panel" id="presentation-panel">
-  <div class="panel-handle"></div>
-  <h2>Présentation du Projet</h2>
-  <p>
-    ✅ Ce projet permet d’investir dans des hôtels et résidences.<br><br>
-    ✅ Vous gagnez en fonction de vos investissements et du parrainage.<br><br>
-    ✅ Plus vous investissez, plus vos gains augmentent.<br><br>
-    ✅ Transparence et retraits disponibles à tout moment.
-  </p>
-</div>
+<a href="presentation.html" class="presentation-btn" id="btn-presentation">
+  <i class="fas fa-info-circle"></i> Présentation du projet
+</a>
 
 <script>
-// Anti copier / coller
-document.addEventListener("copy", e=>e.preventDefault());
-document.addEventListener("cut", e=>e.preventDefault());
-document.addEventListener("contextmenu", e=>e.preventDefault());
-
 // Config Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDQ2UWK115OXfThwaGfetIUSPPz_Ry78BA",
@@ -184,7 +168,8 @@ const translations = {
     deposit:"Dépôt", withdraw:"Retrait", referral:"Parrainage",
     hotels:"Hotels", residences:"Résidences", myHotels:"Mes Hotels",
     myResidences:"Mes Résidences", profile:"Profil",
-    hello:"Bonjour"
+    hello:"Bonjour",
+    presentation:"📘 Présentation du projet"
   },
   en: {
     title:"💎 BRS Riche Dashboard",
@@ -193,7 +178,8 @@ const translations = {
     deposit:"Deposit", withdraw:"Withdraw", referral:"Referral",
     hotels:"Hotels", residences:"Residences", myHotels:"My Hotels",
     myResidences:"My Residences", profile:"Profile",
-    hello:"Hello"
+    hello:"Hello",
+    presentation:"📘 Project Presentation"
   },
   es: {
     title:"💎 Panel BRS Riche",
@@ -202,7 +188,8 @@ const translations = {
     deposit:"Depósito", withdraw:"Retiro", referral:"Referidos",
     hotels:"Hoteles", residences:"Residencias", myHotels:"Mis Hoteles",
     myResidences:"Mis Residencias", profile:"Perfil",
-    hello:"Hola"
+    hello:"Hola",
+    presentation:"📘 Presentación del proyecto"
   }
 };
 
@@ -222,6 +209,7 @@ function setLang(lang, userName=""){
   document.getElementById("menu-my-hotels").innerText = t.myHotels;
   document.getElementById("menu-my-residences").innerText = t.myResidences;
   document.getElementById("menu-profile").innerText = t.profile;
+  document.getElementById("btn-presentation").innerText = t.presentation;
   if(userName){
     document.getElementById("user-info").innerText = `${t.hello}, ${userName}`;
   }
@@ -251,6 +239,7 @@ auth.onAuthStateChanged(user=>{
     const savedLang = localStorage.getItem("lang") || "fr";
     setLang(savedLang, currentUserName);
 
+    // Charger soldes réels
     db.collection("users").doc(user.uid).onSnapshot(doc=>{
       if(doc.exists){
         const data=doc.data();
@@ -259,33 +248,14 @@ auth.onAuthStateChanged(user=>{
         document.getElementById("balance-total").innerText=`$${(data.balanceTotal||0).toFixed(2)}`;
       }
     });
+
   } else {
     window.location.href="login.html";
   }
 });
-
-// Gestion panel présentation
-const panel = document.getElementById("presentation-panel");
-document.getElementById("open-presentation").addEventListener("click", ()=>{
-  panel.classList.add("active");
-});
-panel.addEventListener("click", e=>{
-  if(e.target.classList.contains("panel-handle")){
-    panel.classList.remove("active");
-  }
-});
-
-// Geste tactile pour glisser panel
-let startY=0;
-panel.addEventListener("touchstart", e=>{
-  startY=e.touches[0].clientY;
-});
-panel.addEventListener("touchmove", e=>{
-  let diff = e.touches[0].clientY - startY;
-  if(diff>50){ panel.classList.remove("active"); }
-});
 </script>
 
 </body>
-  </html>
-  
+</html>
+
+                                                      
