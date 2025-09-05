@@ -72,32 +72,16 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 }
 .menu a:hover { transform:translateY(-4px); background:#e6b800; }
 
-/* --- Bouton Présentation --- */
+/* --- Bouton Présentation (nouvelle page) --- */
 .presentation-btn {
   display:block; margin:20px auto; padding:15px 25px;
   background:#0d47a1; color:#fff; font-size:1.2em; font-weight:bold;
   border:none; border-radius:14px; cursor:pointer;
+  text-align:center; text-decoration:none;
   box-shadow:0 4px 12px rgba(0,0,0,0.2);
 }
 .presentation-btn:hover { background:#08306b; }
 
-/* --- Panel Présentation (élastique) */
-.presentation-panel {
-  position:fixed; bottom:-100%; left:0; right:0;
-  background:#fff; border-radius:20px 20px 0 0;
-  box-shadow:0 -4px 20px rgba(0,0,0,0.2);
-  transition:bottom 0.3s ease-in-out;
-  padding:20px; z-index:20; max-height:80%; overflow-y:auto;
-}
-.presentation-panel.active { bottom:0; }
-.presentation-panel h2 { margin-top:0; color:#0d47a1; }
-.presentation-panel p { line-height:1.5; }
-
-/* Handle élastique */
-.panel-handle {
-  width:50px; height:6px; background:#ccc;
-  border-radius:3px; margin:0 auto 15px;
-}
 @media(max-width:768px){
   .balance-card { flex-direction:column; text-align:center; }
 }
@@ -140,15 +124,8 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
   <a href="profile.html"><i class="fas fa-user"></i><span id="menu-profile">Profil</span></a>
 </div>
 
-<!-- Bouton Présentation -->
-<button class="presentation-btn" id="open-presentation">📖 Présentation</button>
-
-<!-- Panel Présentation (vide) -->
-<div class="presentation-panel" id="presentation-panel">
-  <div class="panel-handle"></div>
-  <h2>Présentation du Projet</h2>
-  <p></p> <!-- Texte à ajouter plus tard -->
-</div>
+<!-- Bouton Présentation vers nouvelle page -->
+<a href="presentation.html" class="presentation-btn">📖 Présentation</a>
 
 <script>
 // Anti copier / coller
@@ -234,29 +211,8 @@ auth.onAuthStateChanged(user=>{
     window.location.href="login.html";
   }
 });
-
-// Gestion panel présentation
-const panel = document.getElementById("presentation-panel");
-document.getElementById("open-presentation").addEventListener("click", ()=>{
-  panel.classList.add("active");
-});
-panel.addEventListener("click", e=>{
-  if(e.target.classList.contains("panel-handle")){
-    panel.classList.remove("active");
-  }
-});
-
-// Geste tactile pour glisser panel
-let startY=0;
-panel.addEventListener("touchstart", e=>{
-  startY=e.touches[0].clientY;
-});
-panel.addEventListener("touchmove", e=>{
-  let diff = e.touches[0].clientY - startY;
-  if(diff>50){ panel.classList.remove("active"); }
-});
 </script>
 
 </body>
-  </html>
-  
+        </html>
+                                                                    
