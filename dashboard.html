@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <title>Dashboard - BRS Riche</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <!-- Firebase -->
@@ -12,28 +13,31 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-body { font-family:'Segoe UI',sans-serif; margin:0; padding:0; background:#f4f7fb; color:#333; user-select:none; display:none; }
-header { background:#0d47a1; color:#fff; padding:20px; text-align:center; position:relative; }
+body {
+  font-family:'Segoe UI',sans-serif; margin:0; padding:0;
+  background:#f4f7fb; color:#333; user-select:none; display:none; overflow-x:hidden;
+}
+header {
+  background:#0d47a1; color:#fff; padding:20px; text-align:center; position:relative;
+}
 header h1 { margin:0; font-size:1.6em; }
 header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 
 /* --- Langue --- */
 .lang-dropdown { position:absolute; top:20px; right:20px; }
 .lang-btn { cursor:pointer; font-size:1.3em; }
-.lang-menu { display:none; position:absolute; top:120%; right:0; background:#fff; color:#333; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.2); min-width:120px; z-index:10; }
+.lang-menu {
+  display:none; position:absolute; top:120%; right:0; background:#fff; color:#333;
+  border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.2); min-width:120px; z-index:10;
+}
 .lang-menu div { padding:8px 12px; cursor:pointer; }
 .lang-menu div:hover { background:#f0f0f0; }
 
 /* --- Grande carte des soldes --- */
 .balance-card {
-  background:#fff;
-  margin:20px;
-  padding:20px;
-  border-radius:16px;
+  background:#fff; margin:20px; padding:20px; border-radius:16px;
   box-shadow:0 6px 16px rgba(0,0,0,0.15);
-  display:flex;
-  justify-content:space-between;
-  gap:20px;
+  display:flex; justify-content:space-between; gap:20px;
 }
 .balance-box { flex:1; text-align:center; }
 .balance-box h3 { margin:0; font-size:1em; color:#0d47a1; }
@@ -41,16 +45,10 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 
 /* --- Bouton historique --- */
 .history-btn {
-  display:block;
-  margin:10px 20px;
-  padding:15px;
-  text-align:center;
-  font-size:1.1em;
-  font-weight:bold;
-  color:#fff;
-  background:#ff9800;
-  border-radius:12px;
-  text-decoration:none;
+  display:block; margin:10px 20px; padding:15px;
+  text-align:center; font-size:1.1em; font-weight:bold;
+  color:#fff; background:#ff9800;
+  border-radius:12px; text-decoration:none;
   box-shadow:0 4px 12px rgba(0,0,0,0.2);
   transition:background 0.2s;
 }
@@ -60,28 +58,46 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 .menu {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
-  gap:15px;
-  margin:20px;
+  gap:15px; margin:20px;
 }
 .menu a {
-  background:#ffcc00;
-  color:#0d47a1;
-  border-radius:14px;
-  text-align:center;
-  font-weight:bold;
-  text-decoration:none;
+  background:#ffcc00; color:#0d47a1; border-radius:14px;
+  text-align:center; font-weight:bold; text-decoration:none;
   padding:20px 10px;
   box-shadow:0 6px 14px rgba(0,0,0,0.15);
   transition:transform 0.2s, background 0.2s;
 }
 .menu a i {
-  display:block;
-  font-size:2em;
-  margin-bottom:8px;
+  display:block; font-size:2em; margin-bottom:8px;
 }
 .menu a:hover { transform:translateY(-4px); background:#e6b800; }
 
-/* --- Responsive --- */
+/* --- Bouton Présentation --- */
+.presentation-btn {
+  display:block; margin:20px auto; padding:15px 25px;
+  background:#0d47a1; color:#fff; font-size:1.2em; font-weight:bold;
+  border:none; border-radius:14px; cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+}
+.presentation-btn:hover { background:#08306b; }
+
+/* --- Panel Présentation (élastique) --- */
+.presentation-panel {
+  position:fixed; bottom:-100%; left:0; right:0;
+  background:#fff; border-radius:20px 20px 0 0;
+  box-shadow:0 -4px 20px rgba(0,0,0,0.2);
+  transition:bottom 0.3s ease-in-out;
+  padding:20px; z-index:20; max-height:80%; overflow-y:auto;
+}
+.presentation-panel.active { bottom:0; }
+.presentation-panel h2 { margin-top:0; color:#0d47a1; }
+.presentation-panel p { line-height:1.5; }
+
+/* Handle élastique */
+.panel-handle {
+  width:50px; height:6px; background:#ccc;
+  border-radius:3px; margin:0 auto 15px;
+}
 @media(max-width:768px){
   .balance-card { flex-direction:column; text-align:center; }
 }
@@ -124,7 +140,27 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
   <a href="profile.html"><i class="fas fa-user"></i><span id="menu-profile">Profil</span></a>
 </div>
 
+<!-- Bouton Présentation -->
+<button class="presentation-btn" id="open-presentation">📖 Présentation</button>
+
+<!-- Panel Présentation -->
+<div class="presentation-panel" id="presentation-panel">
+  <div class="panel-handle"></div>
+  <h2>Présentation du Projet</h2>
+  <p>
+    ✅ Ce projet permet d’investir dans des hôtels et résidences.<br><br>
+    ✅ Vous gagnez en fonction de vos investissements et du parrainage.<br><br>
+    ✅ Plus vous investissez, plus vos gains augmentent.<br><br>
+    ✅ Transparence et retraits disponibles à tout moment.
+  </p>
+</div>
+
 <script>
+// Anti copier / coller
+document.addEventListener("copy", e=>e.preventDefault());
+document.addEventListener("cut", e=>e.preventDefault());
+document.addEventListener("contextmenu", e=>e.preventDefault());
+
 // Config Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDQ2UWK115OXfThwaGfetIUSPPz_Ry78BA",
@@ -215,7 +251,6 @@ auth.onAuthStateChanged(user=>{
     const savedLang = localStorage.getItem("lang") || "fr";
     setLang(savedLang, currentUserName);
 
-    // Charger soldes réels
     db.collection("users").doc(user.uid).onSnapshot(doc=>{
       if(doc.exists){
         const data=doc.data();
@@ -224,13 +259,33 @@ auth.onAuthStateChanged(user=>{
         document.getElementById("balance-total").innerText=`$${(data.balanceTotal||0).toFixed(2)}`;
       }
     });
-
   } else {
     window.location.href="login.html";
   }
+});
+
+// Gestion panel présentation
+const panel = document.getElementById("presentation-panel");
+document.getElementById("open-presentation").addEventListener("click", ()=>{
+  panel.classList.add("active");
+});
+panel.addEventListener("click", e=>{
+  if(e.target.classList.contains("panel-handle")){
+    panel.classList.remove("active");
+  }
+});
+
+// Geste tactile pour glisser panel
+let startY=0;
+panel.addEventListener("touchstart", e=>{
+  startY=e.touches[0].clientY;
+});
+panel.addEventListener("touchmove", e=>{
+  let diff = e.touches[0].clientY - startY;
+  if(diff>50){ panel.classList.remove("active"); }
 });
 </script>
 
 </body>
   </html>
-    
+  
