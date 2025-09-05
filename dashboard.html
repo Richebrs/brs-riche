@@ -22,69 +22,24 @@ header {
 }
 header h1 { margin:0; font-size:1.6em; }
 header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
-
-/* --- Langue --- */
 .lang-dropdown { position:absolute; top:20px; right:20px; }
 .lang-btn { cursor:pointer; font-size:1.3em; }
-.lang-menu {
-  display:none; position:absolute; top:120%; right:0; background:#fff; color:#333;
-  border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.2); min-width:120px; z-index:10;
-}
+.lang-menu { display:none; position:absolute; top:120%; right:0; background:#fff; color:#333; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.2); min-width:120px; z-index:10; }
 .lang-menu div { padding:8px 12px; cursor:pointer; }
 .lang-menu div:hover { background:#f0f0f0; }
-
-/* --- Grande carte des soldes --- */
-.balance-card {
-  background:#fff; margin:20px; padding:20px; border-radius:16px;
-  box-shadow:0 6px 16px rgba(0,0,0,0.15);
-  display:flex; justify-content:space-between; gap:20px;
-}
+.balance-card { background:#fff; margin:20px; padding:20px; border-radius:16px; box-shadow:0 6px 16px rgba(0,0,0,0.15); display:flex; justify-content:space-between; gap:20px; }
 .balance-box { flex:1; text-align:center; }
 .balance-box h3 { margin:0; font-size:1em; color:#0d47a1; }
 .balance-box p { margin:8px 0 0; font-size:1.4em; font-weight:bold; }
-
-/* --- Bouton historique --- */
-.history-btn {
-  display:block; margin:10px 20px; padding:15px;
-  text-align:center; font-size:1.1em; font-weight:bold;
-  color:#fff; background:#ff9800;
-  border-radius:12px; text-decoration:none;
-  box-shadow:0 4px 12px rgba(0,0,0,0.2);
-  transition:background 0.2s;
-}
+.history-btn { display:block; margin:10px 20px; padding:15px; text-align:center; font-size:1.1em; font-weight:bold; color:#fff; background:#ff9800; border-radius:12px; text-decoration:none; box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:background 0.2s; }
 .history-btn:hover { background:#e68900; }
-
-/* --- Menus --- */
-.menu {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
-  gap:15px; margin:20px;
-}
-.menu a {
-  background:#ffcc00; color:#0d47a1; border-radius:14px;
-  text-align:center; font-weight:bold; text-decoration:none;
-  padding:20px 10px;
-  box-shadow:0 6px 14px rgba(0,0,0,0.15);
-  transition:transform 0.2s, background 0.2s;
-}
-.menu a i {
-  display:block; font-size:2em; margin-bottom:8px;
-}
+.menu { display:grid; grid-template-columns:repeat(auto-fit,minmax(100px,1fr)); gap:15px; margin:20px; }
+.menu a { background:#ffcc00; color:#0d47a1; border-radius:14px; text-align:center; font-weight:bold; text-decoration:none; padding:20px 10px; box-shadow:0 6px 14px rgba(0,0,0,0.15); transition:transform 0.2s, background 0.2s; }
+.menu a i { display:block; font-size:2em; margin-bottom:8px; }
 .menu a:hover { transform:translateY(-4px); background:#e6b800; }
-
-/* --- Bouton Présentation (nouvelle page) --- */
-.presentation-btn {
-  display:block; margin:20px auto; padding:15px 25px;
-  background:#0d47a1; color:#fff; font-size:1.2em; font-weight:bold;
-  border:none; border-radius:14px; cursor:pointer;
-  text-align:center; text-decoration:none;
-  box-shadow:0 4px 12px rgba(0,0,0,0.2);
-}
+.presentation-btn { display:block; margin:20px auto; padding:15px 25px; background:#0d47a1; color:#fff; font-size:1.2em; font-weight:bold; border:none; border-radius:14px; cursor:pointer; text-align:center; text-decoration:none; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
 .presentation-btn:hover { background:#08306b; }
-
-@media(max-width:768px){
-  .balance-card { flex-direction:column; text-align:center; }
-}
+@media(max-width:768px){ .balance-card { flex-direction:column; text-align:center; } }
 </style>
 </head>
 <body>
@@ -102,17 +57,14 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
   </div>
 </header>
 
-<!-- Grande carte des soldes -->
 <div class="balance-card">
   <div class="balance-box"><h3 id="lbl-disponible">Disponible</h3><p id="balance-available">$0.00</p></div>
   <div class="balance-box"><h3 id="lbl-retire">Retiré</h3><p id="balance-withdrawn">$0.00</p></div>
   <div class="balance-box"><h3 id="lbl-total">Total</h3><p id="balance-total">$0.00</p></div>
 </div>
 
-<!-- Bouton Historique -->
 <a href="history.html" class="history-btn" id="btn-history"><i class="fas fa-history"></i> Mes Historiques</a>
 
-<!-- Menus -->
 <div class="menu">
   <a href="deposit.html"><i class="fas fa-wallet"></i><span id="menu-deposit">Dépôt</span></a>
   <a href="withdraw.html"><i class="fas fa-hand-holding-dollar"></i><span id="menu-withdraw">Retrait</span></a>
@@ -124,16 +76,13 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
   <a href="profile.html"><i class="fas fa-user"></i><span id="menu-profile">Profil</span></a>
 </div>
 
-<!-- Bouton Présentation vers nouvelle page -->
 <a href="presentation.html" class="presentation-btn">📖 Présentation</a>
 
 <script>
-// Anti copier / coller
 document.addEventListener("copy", e=>e.preventDefault());
 document.addEventListener("cut", e=>e.preventDefault());
 document.addEventListener("contextmenu", e=>e.preventDefault());
 
-// Config Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDQ2UWK115OXfThwaGfetIUSPPz_Ry78BA",
   authDomain: "brs-riche.firebaseapp.com",
@@ -147,7 +96,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Traductions
 const translations = {
   fr: { title:"💎 Dashboard BRS Riche", disponible:"Disponible", retire:"Retiré", total:"Total", history:"📜 Mes Historiques", deposit:"Dépôt", withdraw:"Retrait", referral:"Parrainage", hotels:"Hotels", residences:"Résidences", myHotels:"Mes Hotels", myResidences:"Mes Residences", profile:"Profil", hello:"Bonjour" },
   en: { title:"💎 BRS Riche Dashboard", disponible:"Available", retire:"Withdrawn", total:"Total", history:"📜 My History", deposit:"Deposit", withdraw:"Withdraw", referral:"Referral", hotels:"Hotels", residences:"Residences", myHotels:"My Hotels", myResidences:"My Residences", profile:"Profile", hello:"Hello" },
@@ -175,27 +123,18 @@ function setLang(lang, userName=""){
   }
 }
 
-// Ouvrir / fermer menu langues
 const langBtn = document.querySelector(".lang-btn");
 const langMenu = document.getElementById("lang-menu");
-langBtn.addEventListener("click", ()=> {
-  langMenu.style.display = langMenu.style.display==="block" ? "none" : "block";
-});
-langMenu.querySelectorAll("div").forEach(el=>{
-  el.addEventListener("click", ()=>{
-    const lang = el.dataset.lang;
-    setLang(lang, currentUserName);
-    langMenu.style.display="none";
-  });
-});
+langBtn.addEventListener("click", ()=> { langMenu.style.display = langMenu.style.display==="block" ? "none" : "block"; });
+langMenu.querySelectorAll("div").forEach(el=>{ el.addEventListener("click", ()=>{ const lang = el.dataset.lang; setLang(lang, currentUserName); langMenu.style.display="none"; }); });
 
 let currentUserName="";
 
-// Vérifier si connecté
 auth.onAuthStateChanged(user=>{
   if(user){
     document.body.style.display="block";
-    currentUserName = user.displayName || user.email;
+    // Affiche seulement le nom ou pseudo avant @ si pas de displayName
+    currentUserName = user.displayName || user.email.split('@')[0];
     const savedLang = localStorage.getItem("lang") || "fr";
     setLang(savedLang, currentUserName);
 
@@ -207,12 +146,10 @@ auth.onAuthStateChanged(user=>{
         document.getElementById("balance-total").innerText=`$${(data.balanceTotal||0).toFixed(2)}`;
       }
     });
-  } else {
-    window.location.href="login.html";
-  }
+  } else { window.location.href="login.html"; }
 });
 </script>
 
 </body>
-        </html>
-                                                                    
+</html>
+
