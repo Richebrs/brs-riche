@@ -86,7 +86,7 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
   position:fixed; bottom:-100%; left:0; right:0;
   background:#fff; border-radius:20px 20px 0 0;
   box-shadow:0 -4px 20px rgba(0,0,0,0.2);
-  transition:bottom 0.3s ease-in-out;
+  transition:bottom 0.3s ease-in-out, transform 0.3s ease;
   padding:20px; z-index:20; max-height:80%; overflow-y:auto;
 }
 .presentation-panel.active { bottom:0; }
@@ -264,28 +264,53 @@ auth.onAuthStateChanged(user=>{
   }
 });
 
-// Gestion panel présentation
+// --- Panel Présentation avec effet élastique ---
 const panel = document.getElementById("presentation-panel");
+const handle = document.querySelector(".panel-handle");
+let startY = 0;
+let currentY = 0;
+let isDragging = false;
+
 document.getElementById("open-presentation").addEventListener("click", ()=>{
   panel.classList.add("active");
+  panel.style.transform = "translateY(0)";
 });
-panel.addEventListener("click", e=>{
-  if(e.target.classList.contains("panel-handle")){
-    panel.classList.remove("active");
+
+handle.addEventListener("click", ()=>{
+  panel.classList.remove("active");
+  panel.style.transform = "translateY(0)";
+});
+
+panel.addEventListener("touchstart", e=>{
+  startY = e.touches[0].clientY;
+  isDragging = true;
+  panel.style.transition = "none";
+});
+
+panel.addEventListener("touchmove", e=>{
+  if (!isDragging) return;
+  currentY = e.touches[0].clientY;
+  let diff = currentY - startY;
+
+  if (diff > 0) {
+    // tirer vers le bas
+    panel.style.transform = `translateY(${diff}px)`;
   }
 });
 
-// Geste tactile pour glisser panel
-let startY=0;
-panel.addEventListener("touchstart", e=>{
-  startY=e.touches[0].clientY;
-});
-panel.addEventListener("touchmove", e=>{
-  let diff = e.touches[0].clientY - startY;
-  if(diff>50){ panel.classList.remove("active"); }
+panel.addEventListener("touchend", ()=>{
+  isDragging = false;
+  panel.style.transition = "transform 0.3s ease, bottom 0.3s ease";
+
+  if (currentY - startY > 100) {
+    panel.classList.remove("active");
+    panel.style.transform = "translateY(0)";
+  } else {
+    panel.style.transform = "translateY(0)";
+  }
 });
 </script>
 
 </body>
   </html>
-  
+                                        
