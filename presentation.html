@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Présentation - BRS Riche</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body {
+  font-family:'Segoe UI', Arial, sans-serif;
+  margin:0; padding:0;
+  background:#f4f7fb;
+  color:#333;
+}
+header {
+  background:#0d47a1;
+  color:#fff;
+  padding:20px;
+  text-align:center;
+  border-radius:0 0 14px 14px;
+}
+header h1 {
+  margin:0;
+  font-size:1.8em;
+}
+.container {
+  max-width:900px;
+  margin:40px auto;
+  background:#fff;
+  padding:30px 20px;
+  border-radius:14px;
+  box-shadow:0 6px 16px rgba(0,0,0,0.15);
+  line-height:1.6;
+}
+.container h2 {
+  color:#0d47a1;
+  text-align:center;
+  margin-top:20px;
+  margin-bottom:12px;
+}
+.container p, .container ul {
+  margin-bottom:16px;
+}
+.container ul {
+  padding-left:20px;
+}
+.card-container {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:18px;
+  margin-top:16px;
+}
+.card {
+  flex:1 1 250px;
+  max-width:280px;
+  background:#f0f4ff;
+  border-radius:12px;
+  padding:20px;
+  text-align:center;
+  box-shadow:0 6px 16px rgba(0,0,0,0.1);
+  transition:transform 0.2s;
+}
+.card i {
+  font-size:2em;
+  color:#0d47a1;
+  margin-bottom:10px;
+}
+.card:hover {
+  transform:translateY(-4px);
+}
+.back-btn {
+  display:block;
+  margin:30px auto;
+  padding:12px 25px;
+  background:#ff9800;
+  color:#fff;
+  font-weight:bold;
+  text-decoration:none;
+  border-radius:12px;
+  text-align:center;
+  width:220px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  transition:background 0.2s;
+}
+.back-btn:hover {
+  background:#e68900;
+}
+@media(max-width:768px){
+  .container { margin:20px 10px; padding:20px 15px; }
+  .card-container { flex-direction:column; align-items:center; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📄 Présentation de BRS Riche</h1>
+</header>
+
+<div class="container">
+
+  <h2>🌍 Bienvenue</h2>
+  <p><strong>BRS Riche</strong> est une plateforme innovante qui rend l’investissement simple, sécurisé et accessible à tous. Notre objectif est de permettre à chaque utilisateur de générer un revenu passif sans connaissances financières avancées.</p>
+
+  <h2>🚀 Fonctionnalités Principales</h2>
+  <div class="card-container">
+    <div class="card">
+      <i class="fas fa-tachometer-alt"></i>
+      <h3>Tableau de bord</h3>
+      <p>Suivez vos dépôts, retraits et gains en temps réel depuis n’importe quel appareil.</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-wallet"></i>
+      <h3>Dépôts & Retraits</h3>
+      <p>Opérations sécurisées et traçables, directement dans Firebase/Firestore.</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-building"></i>
+      <h3>Propriétés</h3>
+      <p>Visualisez vos hôtels et résidences, avec détails et revenus potentiels.</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-users"></i>
+      <h3>Parrainage</h3>
+      <p>Gagnez des commissions sur 3 niveaux pour chaque utilisateur invité.</p>
+    </div>
+  </div>
+
+  <h2>🛠️ Technologie utilisée</h2>
+  <ul>
+    <li><strong>Blockchain :</strong> Transparence et sécurité totale sur chaque transaction.</li>
+    <li><strong>Smart Contracts :</strong> Calcul et distribution automatiques des gains.</li>
+    <li><strong>Firebase :</strong> Stockage et mise à jour des données utilisateur en temps réel.</li>
+    <li><strong>Interface intuitive :</strong> Navigation simple et design responsive.</li>
+  </ul>
+
+  <h2>📦 Plans d’investissement</h2>
+  <ul>
+    <li><strong>Hôtels quotidiens :</strong> Gains payés quotidiennement, capital consommé à la fin.</li>
+    <li><strong>Résidences fixes :</strong> Choix de la durée, gains + capital versés à la fin de la période.</li>
+  </ul>
+
+  <h2>🤝 Parrainage et bonus</h2>
+  <ul>
+    <li>Niveau 1 : Invitations directes → commission maximale</li>
+    <li>Niveau 2 : Réseau secondaire → revenu supplémentaire</li>
+    <li>Niveau 3 : Réseau étendu → gains passifs supplémentaires</li>
+    <li>Bonus spéciaux débloqués en atteignant certains jalons.</li>
+  </ul>
+
+  <h2>❓ FAQ</h2>
+  <p><strong>Comment commencer ?</strong> Créez un compte gratuit, choisissez un plan et effectuez votre premier dépôt.</p>
+  <p><strong>Mon argent est-il sécurisé ?</strong> Oui, toutes les transactions sont protégées et traçables grâce à la blockchain.</p>
+  <p><strong>Quand puis-je retirer mes gains ?</strong> Dès que votre solde atteint le minimum requis (ex. $3).</p>
+  <p><strong>Comment fonctionne le parrainage ?</strong> Gagnez des commissions sur 3 niveaux dès que vos invités s’inscrivent et investissent.</p>
+
+</div>
+
+<a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Retour au dashboard</a>
+
+</body>
+  </html>
+  
