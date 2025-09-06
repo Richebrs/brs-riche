@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Dépôt - BRS Riche</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+body { font-family:'Segoe UI',sans-serif; margin:0; padding:0; background:#f4f7fb; color:#333; display:none; }
+header { background:#0d47a1; color:#fff; padding:15px; text-align:center; }
+h1 { margin:0; font-size:1.4em; }
+.container { padding:20px; max-width:400px; margin:auto; }
+input, button { width:100%; padding:12px; margin:8px 0; border-radius:10px; border:1px solid #ccc; font-size:1em; }
+button { background:#0d47a1; color:#fff; font-weight:bold; border:none; cursor:pointer; }
+button:hover { background:#08306b; }
+.message { margin-top:10px; font-size:0.95em; }
+.success { color:green; }
+.error { color:red; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>💰 Faire un Dépôt</h1>
+</header>
+
+<div class="container">
+  <label for="amount">Montant à déposer (USD)</label>
+  <input type="number" id="amount" placeholder="Ex: 50">
+  <button id="deposit-btn">Déposer</button>
+  <p class="message" id="message"></p>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDQ2UWK115OXfThwaGfetIUSPPz_Ry78BA",
+  authDomain: "brs-riche.firebaseapp.com",
+  projectId: "brs-riche",
+  storageBucket: "brs-riche.appspot.com",
+  messagingSenderId: "44338076148",
+  appId: "1:44338076148:web:b0c32d6caa12221fe601a1",
+  measurementId: "G-FQ5ZFB4FYM"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const amountInput = document.getElementById("amount");
+const btn = document.getElementById("deposit-btn");
+const msg = document.getElementById("message");
+
+auth.onAuthStateChanged(user=>{
+  if(!user){
+    window.location.href="login.html";
+    return;
+  }
+
+  btn.addEventListener("click", async ()=>{
+    const amount = parseFloat(amountInput.value);
+    if(isNaN(amount) || amount <= 0){
+      msg.textContent="Veuillez entrer un montant valide.";
+      msg.className="message error";
+      return;
+    }
+
+    try {
+      const userRef = db.collection("users").doc(user.uid);
+      await db.runTransaction(async (transaction)=>{
+        const doc = await transaction.get(userRef);
+        if(!doc.exists) throw "Utilisateur introuvable";
+
+        const data = doc.data();
+        const newBalance = (data.balanceAvailable || 0) + amount;
+        const newTotal = (data.balanceTotal || 0) + amount;
+
+        transaction.update(userRef, {
+          balanceAvailable: newBalance,
+          balanceTotal: newTotal
+        });
+
+        const historyRef = userRef.collection("history").doc();
+        transaction.set(historyRef, {
+          type: "deposit",
+          amount: amount,
+          description: `Dépôt de ${amount} USD`,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      });
+
+      msg.textContent="✅ Dépôt effectué avec succès !";
+      msg.className="message success";
+      amountInput.value="";
+    } catch(err){
+      console.error(err);
+      msg.textContent="❌ Erreur lors du dépôt.";
+      msg.className="message error";
+    }
+  });
+});
+</script>
+
+</body>
+</html>
