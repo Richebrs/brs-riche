@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -133,23 +132,35 @@ let currentUserName="";
 auth.onAuthStateChanged(user=>{
   if(user){
     document.body.style.display="block";
-    // Affiche seulement le nom ou pseudo avant @ si pas de displayName
     currentUserName = user.displayName || user.email.split('@')[0];
     const savedLang = localStorage.getItem("lang") || "fr";
     setLang(savedLang, currentUserName);
 
-    db.collection("users").doc(user.uid).onSnapshot(doc=>{
+    const userRef = db.collection("users").doc(user.uid);
+
+    // Écoute en temps réel et calcul automatique du total
+    userRef.onSnapshot(async doc=>{
       if(doc.exists){
-        const data=doc.data();
-        document.getElementById("balance-available").innerText=`$${(data.balanceAvailable||0).toFixed(2)}`;
-        document.getElementById("balance-withdrawn").innerText=`$${(data.balanceWithdrawn||0).toFixed(2)}`;
-        document.getElementById("balance-total").innerText=`$${(data.balanceTotal||0).toFixed(2)}`;
+        const data = doc.data();
+        const available = data.balanceAvailable ?? data.balance ?? 0;
+        const withdrawn = data.balanceWithdrawn ?? 0;
+        let total = available + withdrawn;
+
+        if(total !== data.balanceTotal){
+          await userRef.update({ balanceTotal: total });
+        }
+
+        document.getElementById("balance-available").innerText = `$${available.toFixed(2)}`;
+        document.getElementById("balance-withdrawn").innerText = `$${withdrawn.toFixed(2)}`;
+        document.getElementById("balance-total").innerText = `$${total.toFixed(2)}`;
       }
     });
-  } else { window.location.href="login.html"; }
+  } else {
+    window.location.href="login.html";
+  }
 });
 </script>
 
 </body>
-</html>
-
+                                        </html>
+                                                                                                   
