@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -7,20 +6,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <style>
 body {
   font-family:'Segoe UI',sans-serif;
   margin:0; padding:0;
   background:#f4f7fb;
   color:#333;
-  user-select:none;
   display:none;
-  overflow-x:hidden;
 }
 header {
   background:#0d47a1;
@@ -31,54 +23,46 @@ header {
 header h1 { margin:0; font-size:1.6em; }
 header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 
-.container {
-  max-width:500px;
-  margin:30px auto;
-  padding:0 15px;
-}
-
-.deposit-box {
+.deposit-container {
+  max-width:400px;
+  margin:50px auto;
   background:#fff;
-  padding:25px 20px;
-  border-radius:16px;
+  padding:30px 20px;
+  border-radius:14px;
   box-shadow:0 6px 16px rgba(0,0,0,0.15);
   text-align:center;
 }
-
-.deposit-box h2 { margin-bottom:20px; color:#0d47a1; }
-
-.deposit-box input[type="number"] {
-  width:100%;
-  padding:12px;
+.deposit-container input {
+  width:80%;
+  padding:12px 10px;
+  margin:15px 0;
   font-size:1.1em;
   border:1px solid #ccc;
-  border-radius:10px;
-  margin-bottom:20px;
+  border-radius:8px;
+  text-align:center;
 }
-
-.deposit-box button {
+.deposit-container button {
   padding:12px 25px;
-  background:#ff9800;
-  color:#fff;
+  font-size:1.1em;
   font-weight:bold;
+  color:#fff;
+  background:#4caf50;
   border:none;
   border-radius:12px;
-  font-size:1.1em;
   cursor:pointer;
   box-shadow:0 4px 12px rgba(0,0,0,0.2);
   transition:background 0.2s;
 }
-.deposit-box button:hover { background:#e68900; }
+.deposit-container button:hover { background:#43a047; }
 
 .message {
   margin-top:15px;
-  font-weight:bold;
-  color:green;
+  font-size:1em;
+  color:#0d47a1;
 }
-
 .back-btn {
   display:block;
-  margin:20px auto;
+  margin:30px auto;
   padding:12px 25px;
   background:#0d47a1;
   color:#fff;
@@ -86,7 +70,7 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
   text-decoration:none;
   border-radius:12px;
   text-align:center;
-  width:200px;
+  width:220px;
   box-shadow:0 4px 12px rgba(0,0,0,0.2);
   transition:background 0.2s;
 }
@@ -97,16 +81,13 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 
 <header>
   <h1>💰 Dépôt</h1>
-  <div class="user-info" id="user-info"></div>
+  <div class="user-info" id="user-info">Chargement...</div>
 </header>
 
-<div class="container">
-  <div class="deposit-box">
-    <h2>Ajouter un dépôt</h2>
-    <input type="number" id="deposit-amount" placeholder="Montant ($)" min="1">
-    <button id="deposit-btn"><i class="fas fa-plus-circle"></i> Déposer</button>
-    <div class="message" id="message"></div>
-  </div>
+<div class="deposit-container">
+  <input type="number" id="deposit-amount" placeholder="Montant à déposer ($)" min="1" step="0.01">
+  <button id="deposit-btn"><i class="fas fa-money-bill-wave"></i> Déposer</button>
+  <div class="message" id="deposit-message"></div>
 </div>
 
 <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Retour</a>
@@ -114,40 +95,49 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 <script src="firebase-init.js"></script>
 <script src="setup-firestore.js"></script>
 <script>
-let currentUserName = "";
-
 listenUserData(async (user, data)=>{
   document.body.style.display="block";
-  currentUserName = user.displayName || user.email.split('@')[0];
-  document.getElementById("user-info").innerText = `Bonjour, ${currentUserName}`;
+  const userName = user.displayName || user.email.split('@')[0];
+  document.getElementById("user-info").innerText = `Bonjour, ${userName}`;
 
   const depositBtn = document.getElementById("deposit-btn");
-  const amountInput = document.getElementById("deposit-amount");
-  const messageDiv = document.getElementById("message");
-  const userRef = db.collection("users").doc(user.uid);
+  const depositInput = document.getElementById("deposit-amount");
+  const messageDiv = document.getElementById("deposit-message");
 
   depositBtn.addEventListener("click", async ()=>{
-    const amount = parseFloat(amountInput.value);
+    const amount = parseFloat(depositInput.value);
     if(isNaN(amount) || amount <= 0){
-      messageDiv.style.color = "red";
       messageDiv.innerText = "Veuillez entrer un montant valide.";
       return;
     }
 
-    // Ajouter transaction dans Firestore
-    await userRef.collection("transactions").add({
-      type: "deposit",
-      amount: amount,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    messageDiv.innerText = "Enregistrement en cours...";
 
-    // Mettre à jour le solde disponible
-    const newAvailable = (data.balanceAvailable ?? 0) + amount;
-    await userRef.update({ balanceAvailable: newAvailable });
+    try{
+      const userRef = db.collection("users").doc(user.uid);
 
-    messageDiv.style.color = "green";
-    messageDiv.innerText = `Dépôt de $${amount.toFixed(2)} ajouté avec succès !`;
-    amountInput.value = "";
+      // Ajouter transaction
+      await userRef.collection("transactions").add({
+        type: "Dépôt",
+        amount: amount,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      // Mettre à jour le solde disponible et total
+      const newAvailable = (data.balanceAvailable ?? 0) + amount;
+      const newTotal = (data.balanceWithdrawn ?? 0) + newAvailable;
+      await userRef.update({
+        balanceAvailable: newAvailable,
+        balanceTotal: newTotal
+      });
+
+      depositInput.value = "";
+      messageDiv.innerText = "✅ Dépôt effectué avec succès !";
+
+    } catch(e){
+      console.error(e);
+      messageDiv.innerText = "❌ Erreur lors du dépôt. Réessayez.";
+    }
   });
 });
 </script>
