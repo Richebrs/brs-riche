@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Mes Résidences - BRS Riche</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body { font-family:'Segoe UI',sans-serif; margin:0; padding:0; background:#f4f7fb; display:none; }
+header { background:#0d47a1; color:#fff; padding:20px; text-align:center; }
+header h1 { margin:0; font-size:1.6em; }
+header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
+
+.container { max-width:900px; margin:20px auto; padding:0 10px; }
+.table { width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 6px 16px rgba(0,0,0,0.15); }
+.table th, .table td { padding:12px 15px; text-align:center; border-bottom:1px solid #ddd; }
+.table th { background:#0d47a1; color:#fff; font-weight:bold; }
+.table tr:last-child td { border-bottom:none; }
+.no-data { text-align:center; margin:40px 0; font-size:1.1em; color:#666; }
+
+.back-btn { display:block; margin:20px auto 40px; padding:12px 25px; background:#ff9800; color:#fff; font-weight:bold; text-decoration:none; border-radius:12px; text-align:center; width:200px; box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:background 0.2s; }
+.back-btn:hover { background:#e68900; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏘️ Mes Résidences</h1>
+  <div class="user-info" id="user-info">Chargement...</div>
+</header>
+
+<div class="container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Unités</th>
+        <th>Créé le</th>
+      </tr>
+    </thead>
+    <tbody id="residences-body">
+      <tr><td colspan="3" class="no-data">Chargement des résidences...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Retour</a>
+
+<script src="firebase-init.js"></script>
+<script src="setup-firestore.js"></script>
+<script>
+listenUserData((user, data)=>{
+  document.body.style.display="block";
+  const userName = user.displayName || user.email.split('@')[0];
+  document.getElementById("user-info").innerText = `Bonjour, ${userName}`;
+
+  const resBody = document.getElementById("residences-body");
+  const resRef = db.collection("users").doc(user.uid).collection("residences");
+
+  resRef.onSnapshot(snapshot=>{
+    resBody.innerHTML="";
+    if(snapshot.empty){
+      resBody.innerHTML='<tr><td colspan="3" class="no-data">Aucune résidence trouvée pour le moment.</td></tr>';
+    } else {
+      snapshot.forEach(doc=>{
+        const r = doc.data();
+        const created = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString() : "-";
+        resBody.innerHTML += `<tr><td>${r.name}</td><td>${r.units ?? 0}</td><td>${created}</td></tr>`;
+      });
+    }
+  });
+});
+</script>
+
+</body>
+</html>
