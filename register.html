@@ -6,25 +6,44 @@
 <title>Créer un compte - BRS Riche</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body { font-family:'Segoe UI',sans-serif; background:linear-gradient(135deg,#0d47a1,#1565c0); margin:0; padding:0; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+  body {
+    font-family:'Segoe UI',sans-serif;
+    background:linear-gradient(135deg,#0d47a1,#1565c0);
+    margin:0; padding:0;
+    display:flex; justify-content:center; align-items:center;
+    min-height:100vh;
+  }
   .container{max-width:420px;width:100%;padding:20px;}
-  .card{background:#fff;padding:32px;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.2);}
+  .card{
+    background:#fff;padding:32px;border-radius:16px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.2);
+  }
   .logo{text-align:center;margin-bottom:15px;}
   .logo img{width:80px;height:80px;}
   h1{text-align:center;color:#0d47a1;margin-bottom:25px;}
   .form-group{margin-bottom:18px;}
   label{font-weight:bold;display:block;margin-bottom:6px;}
-  input{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font-size:1em;}
-  button{width:100%;padding:14px;background:#0d47a1;color:#fff;border:none;border-radius:12px;font-size:1em;font-weight:bold;cursor:pointer;transition:.3s;}
+  input{
+    width:100%;padding:12px;
+    border:1px solid #ccc;border-radius:10px;font-size:1em;
+  }
+  button{
+    width:100%;padding:14px;background:#0d47a1;color:#fff;
+    border:none;border-radius:12px;font-size:1em;font-weight:bold;
+    cursor:pointer;transition:.3s;
+  }
   button:hover{background:#1565c0;}
   .link{text-align:center;margin-top:18px;font-size:.9em;}
   .link a{color:#0d47a1;font-weight:bold;text-decoration:none;}
-  .msg{margin-top:15px;padding:10px;border-radius:8px;text-align:center;display:none;font-size:.95em;}
+  .msg{
+    margin-top:15px;padding:10px;border-radius:8px;
+    text-align:center;display:none;font-size:.95em;
+  }
   .success{background:#e8f5e9;color:#2e7d32;}
   .error{background:#ffebee;color:#c62828;}
 </style>
 </head>
-<body>
+<body oncontextmenu="return false">
 <div class="container">
   <div class="card">
     <div class="logo"><img src="logo.png" alt="BRS Riche"></div>
@@ -59,6 +78,7 @@
   </div>
 </div>
 
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -77,42 +97,42 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // Pré-remplir code parrainage depuis l’URL ?ref=XXXX
-document.getElementById("refCode").value = new URLSearchParams(window.location.search).get("ref") || "";
+const urlParams = new URLSearchParams(window.location.search);
+document.getElementById("refCode").value = urlParams.get("ref") || "";
 
+// Formulaire
 const form = document.getElementById('registerForm');
 const msgBox = document.getElementById('msgBox');
 
 form.addEventListener('submit', async e => {
-  e.preventDefault();
+  e.preventDefault(); 
   msgBox.style.display="none";
-
+  
   const username = document.getElementById('username').value.trim();
   const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirmPassword').value;
+  const pass = document.getElementById('password').value;
+  const confirmPass = document.getElementById('confirmPassword').value;
   const refCode = document.getElementById('refCode').value.trim();
 
-  if(password !== confirmPassword){
+  if(pass !== confirmPass){
     return showMsg("⚠️ Les mots de passe ne correspondent pas.","error");
   }
-  if(password.length < 6){
+  if(pass.length < 6){
     return showMsg("⚠️ Le mot de passe doit contenir au moins 6 caractères.","error");
   }
 
   try{
-    // Vérifier si username déjà utilisé
+    // Vérifier si username déjà pris
     const usernameDoc = await db.collection("usernames").doc(username).get();
     if(usernameDoc.exists){
-      return showMsg("⚠️ Nom d’utilisateur déjà utilisé.","error");
+      return showMsg("⚠️ Ce nom d’utilisateur est déjà pris.","error");
     }
 
-    const userCred = await auth.createUserWithEmailAndPassword(email, password);
+    // Créer compte
+    const userCred = await auth.createUserWithEmailAndPassword(email, pass);
     const uid = userCred.user.uid;
-
-    // Créer mapping username → uid
-    await db.collection("usernames").doc(username).set({ uid: uid });
-
-    // Créer document utilisateur
+    
+    // Sauvegarde Firestore (users)
     await db.collection("users").doc(uid).set({
       username: username,
       email: email,
@@ -123,9 +143,13 @@ form.addEventListener('submit', async e => {
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
+    // Sauvegarde Firestore (usernames → uid)
+    await db.collection("usernames").doc(username).set({
+      uid: uid
+    });
+
     showMsg("✅ Compte créé avec succès ! Redirection vers la connexion...", "success");
     setTimeout(()=>window.location.href="login.html",2000);
-
   }catch(err){
     if(err.code==="auth/email-already-in-use")
       showMsg("⚠️ Cet email est déjà utilisé. Veuillez vous connecter.","error");
@@ -137,12 +161,12 @@ form.addEventListener('submit', async e => {
 });
 
 function showMsg(txt,type){
-  msgBox.innerText = txt;
-  msgBox.className = "msg "+type;
-  msgBox.style.display = "block";
+  msgBox.innerText=txt;
+  msgBox.className="msg "+type;
+  msgBox.style.display="block";
 }
 </script>
 </body>
 </html>
 
-  
+        
