@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -121,9 +122,10 @@ form.addEventListener('submit', async e => {
   }
 
   try{
+    // Créer compte Firebase Auth
     const userCred = await auth.createUserWithEmailAndPassword(email, pass);
     const uid = userCred.user.uid;
-    
+
     // Sauvegarde Firestore
     await db.collection("users").doc(uid).set({
       username: username,
@@ -133,6 +135,12 @@ form.addEventListener('submit', async e => {
       balanceWithdrawn: 0,
       balanceTotal: 0,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Créer document username → uid pour login
+    await db.collection("usernames").doc(username).set({
+      uid: uid,
+      email: email
     });
 
     showMsg("✅ Compte créé avec succès ! Redirection vers la connexion...", "success");
@@ -154,4 +162,5 @@ function showMsg(txt,type){
 }
 </script>
 </body>
-</html>
+  </html>
+  
