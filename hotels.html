@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Mes Hôtels - BRS Riche</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body {
+  font-family:'Segoe UI',sans-serif;
+  margin:0; padding:0;
+  background:#f4f7fb;
+  color:#333;
+  display:none;
+}
+header {
+  background:#0d47a1;
+  color:#fff;
+  padding:20px;
+  text-align:center;
+}
+header h1 { margin:0; font-size:1.6em; }
+header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
+
+.properties-container {
+  max-width:900px;
+  margin:20px auto;
+  padding:0 10px;
+}
+.property-box {
+  background:#fff;
+  border-radius:12px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 6px 16px rgba(0,0,0,0.15);
+  text-align:center;
+}
+.property-box h2 { margin-top:0; color:#0d47a1; font-size:1.3em; }
+.property-box p { margin:5px 0; font-size:1em; color:#555; }
+
+.no-property {
+  text-align:center;
+  color:#666;
+  font-style:italic;
+  margin:20px 0;
+}
+
+.back-btn {
+  display:block;
+  margin:30px auto;
+  padding:12px 25px;
+  background:#0d47a1;
+  color:#fff;
+  font-weight:bold;
+  text-decoration:none;
+  border-radius:12px;
+  text-align:center;
+  width:220px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  transition:background 0.2s;
+}
+.back-btn:hover { background:#08306b; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏨 Mes Hôtels</h1>
+  <div class="user-info" id="user-info">Chargement...</div>
+</header>
+
+<div class="properties-container" id="properties-container">
+  <p class="no-property">Chargement des hôtels...</p>
+</div>
+
+<a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Retour</a>
+
+<script src="firebase-init.js"></script>
+<script src="setup-firestore.js"></script>
+
+<script>
+listenUserData((user, data)=>{
+  document.body.style.display="block";
+  const userName = user.displayName || user.email.split('@')[0];
+  document.getElementById("user-info").innerText = `Bonjour, ${userName}`;
+
+  const container = document.getElementById("properties-container");
+  const hotelsRef = db.collection("users").doc(user.uid).collection("hotels");
+
+  hotelsRef.onSnapshot(snapshot=>{
+    container.innerHTML = "";
+    if(snapshot.empty){
+      container.innerHTML = '<p class="no-property">Aucun hôtel trouvé.</p>';
+    } else {
+      snapshot.forEach(doc=>{
+        const h = doc.data();
+        const box = document.createElement("div");
+        box.className = "property-box";
+        box.innerHTML = `<h2>${h.name || "Hôtel sans nom"}</h2>
+                         <p>Chambres: ${h.rooms ?? 0}</p>
+                         <p>Ajouté le: ${h.createdAt?.toDate ? h.createdAt.toDate().toLocaleString() : "-"}</p>`;
+        container.appendChild(box);
+      });
+    }
+  });
+});
+</script>
+
+</body>
+</html>
