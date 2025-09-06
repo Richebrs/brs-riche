@@ -1,17 +1,16 @@
-
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <title>Connexion - BRS Riche</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0d47a1,#1565c0);margin:0;padding:0;}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0d47a1,#1565c0);margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}
 .container{max-width:420px;margin:auto;padding:40px 20px;}
 .card{background:#fff;padding:32px;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.2);}
-.logo{text-align:center;margin-bottom:15px;}
+.logo{text-align:center;margin-bottom:10px;}
 .logo img{width:80px;height:80px;}
-h1{text-align:center;color:#0d47a1;margin-bottom:25px;}
+h1{text-align:center;color:#0d47a1;margin-bottom:20px;}
 .form-group{margin-bottom:18px;}
 label{font-weight:bold;display:block;margin-bottom:6px;}
 input{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font-size:1em;}
@@ -19,7 +18,7 @@ button{width:100%;padding:14px;background:#0d47a1;color:#fff;border:none;border-
 button:hover{background:#1565c0;}
 .link{text-align:center;margin-top:16px;font-size:.9em;}
 .link a{color:#0d47a1;font-weight:bold;text-decoration:none;}
-.msg{margin-top:15px;padding:10px;border-radius:8px;text-align:center;display:none;}
+.msg{margin-top:15px;padding:10px;border-radius:8px;text-align:center;display:none;font-size:.95em;}
 .success{background:#e8f5e9;color:#2e7d32;}
 .error{background:#ffebee;color:#c62828;}
 </style>
@@ -30,14 +29,8 @@ button:hover{background:#1565c0;}
     <div class="logo"><img src="logo.png" alt="BRS Riche"></div>
     <h1>Se connecter</h1>
     <form id="loginForm">
-      <div class="form-group">
-        <label>Nom d’utilisateur ou Email</label>
-        <input type="text" id="userInput" required placeholder="Votre pseudo ou email">
-      </div>
-      <div class="form-group">
-        <label>Mot de passe</label>
-        <input type="password" id="password" required placeholder="••••••••">
-      </div>
+      <div class="form-group"><label>Nom d’utilisateur ou Email</label><input type="text" id="userInput" required></div>
+      <div class="form-group"><label>Mot de passe</label><input type="password" id="password" required></div>
       <button type="submit">Connexion</button>
     </form>
     <div id="msgBox" class="msg"></div>
@@ -48,6 +41,7 @@ button:hover{background:#1565c0;}
   </div>
 </div>
 
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -65,32 +59,32 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// Anti-cache pour forcer rechargement de la page
+const bustCache = (url)=>url+"?v="+Date.now();
+
 const form = document.getElementById("loginForm");
 const msgBox = document.getElementById("msgBox");
 
-form.addEventListener("submit", async e => {
-  e.preventDefault(); 
-  msgBox.style.display="none";
-  
-  let input = document.getElementById("userInput").value.trim();
-  const password = document.getElementById("password").value;
-  let emailToUse = input;
+form.addEventListener("submit", async e=>{
+  e.preventDefault(); msgBox.style.display="none";
+  const input = document.getElementById("userInput").value.trim();
+  const pass = document.getElementById("password").value;
 
-  try {
-    // Si l'utilisateur n'a pas "@", on suppose que c'est un username
+  try{
+    let emailToUse = input;
+
+    // Si ce n'est pas un email, chercher l'username
     if(!input.includes("@")){
-      const querySnap = await db.collection("usernames").doc(input).get();
-      if(!querySnap.exists){
-        return showMsg("⚠️ Nom d’utilisateur introuvable.","error");
-      }
-      emailToUse = querySnap.data().email;
+      const querySnap = await db.collection("users").where("username","==",input).get();
+      if(querySnap.empty) return showMsg("⚠️ Nom d’utilisateur introuvable.","error");
+      emailToUse = querySnap.docs[0].data().email;
     }
 
-    await auth.signInWithEmailAndPassword(emailToUse, password);
+    await auth.signInWithEmailAndPassword(emailToUse, pass);
     showMsg("✅ Connexion réussie ! Redirection...", "success");
-    setTimeout(()=>window.location.href="dashboard.html?v="+Date.now(),1200);
+    setTimeout(()=>window.location.href=bustCache("dashboard.html"),1200);
 
-  } catch(err){
+  }catch(err){
     if(err.code==="auth/user-not-found") showMsg("⚠️ Utilisateur introuvable.","error");
     else if(err.code==="auth/wrong-password") showMsg("⚠️ Mot de passe incorrect.","error");
     else showMsg("❌ Erreur : "+err.message,"error");
@@ -104,5 +98,5 @@ function showMsg(txt,type){
 }
 </script>
 </body>
-</html>
-
+  </html>
+  
