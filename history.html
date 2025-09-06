@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Mes Historiques - BRS Riche</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+body { font-family:'Segoe UI',sans-serif; margin:0; padding:0; background:#f4f7fb; color:#333; display:none; }
+header { background:#0d47a1; color:#fff; padding:15px; text-align:center; }
+h1 { margin:0; font-size:1.4em; }
+.history-list { padding:20px; }
+.history-item { background:#fff; padding:15px; margin-bottom:10px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+.history-item p { margin:5px 0; }
+.type { font-weight:bold; color:#0d47a1; }
+.amount { font-size:1.1em; font-weight:bold; color:#ff9800; }
+.date { font-size:0.9em; color:#777; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📜 Mes Historiques</h1>
+</header>
+
+<div class="history-list" id="history-list">
+  <p>Chargement...</p>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDQ2UWK115OXfThwaGfetIUSPPz_Ry78BA",
+  authDomain: "brs-riche.firebaseapp.com",
+  projectId: "brs-riche",
+  storageBucket: "brs-riche.appspot.com",
+  messagingSenderId: "44338076148",
+  appId: "1:44338076148:web:b0c32d6caa12221fe601a1",
+  measurementId: "G-FQ5ZFB4FYM"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+auth.onAuthStateChanged(user=>{
+  if(user){
+    document.body.style.display="block";
+    const historyRef = db.collection("users").doc(user.uid).collection("history").orderBy("createdAt","desc");
+
+    historyRef.onSnapshot(snapshot=>{
+      const list = document.getElementById("history-list");
+      list.innerHTML="";
+      if(snapshot.empty){
+        list.innerHTML="<p>Aucun historique pour l’instant.</p>";
+      } else {
+        snapshot.forEach(doc=>{
+          const data = doc.data();
+          const item = document.createElement("div");
+          item.className="history-item";
+          item.innerHTML = `
+            <p class="type">📌 ${data.type || "Action"}</p>
+            ${data.amount ? `<p class="amount">💰 ${data.amount} USD</p>` : ""}
+            <p>${data.description || ""}</p>
+            <p class="date">${data.createdAt?.toDate().toLocaleString() || ""}</p>
+          `;
+          list.appendChild(item);
+        });
+      }
+    });
+  } else {
+    window.location.href="login.html";
+  }
+});
+</script>
+
+</body>
+</html>
+
+  
