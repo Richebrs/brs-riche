@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -8,9 +9,9 @@
 body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0d47a1,#1565c0);margin:0;padding:0;}
 .container{max-width:420px;margin:auto;padding:40px 20px;}
 .card{background:#fff;padding:32px;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.2);}
-.logo{text-align:center;margin-bottom:10px;}
+.logo{text-align:center;margin-bottom:15px;}
 .logo img{width:80px;height:80px;}
-h1{text-align:center;color:#0d47a1;margin-bottom:20px;}
+h1{text-align:center;color:#0d47a1;margin-bottom:25px;}
 .form-group{margin-bottom:18px;}
 label{font-weight:bold;display:block;margin-bottom:6px;}
 input{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font-size:1em;}
@@ -31,11 +32,11 @@ button:hover{background:#1565c0;}
     <form id="loginForm">
       <div class="form-group">
         <label>Nom d’utilisateur ou Email</label>
-        <input type="text" id="userInput" required>
+        <input type="text" id="userInput" required placeholder="Votre pseudo ou email">
       </div>
       <div class="form-group">
         <label>Mot de passe</label>
-        <input type="password" id="password" required>
+        <input type="password" id="password" required placeholder="••••••••">
       </div>
       <button type="submit">Connexion</button>
     </form>
@@ -47,7 +48,6 @@ button:hover{background:#1565c0;}
   </div>
 </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -68,35 +68,29 @@ const db = firebase.firestore();
 const form = document.getElementById("loginForm");
 const msgBox = document.getElementById("msgBox");
 
-form.addEventListener("submit", async e=>{
-  e.preventDefault(); msgBox.style.display="none";
-  const input = document.getElementById("userInput").value.trim();
-  const pass = document.getElementById("password").value;
+form.addEventListener("submit", async e => {
+  e.preventDefault(); 
+  msgBox.style.display="none";
+  
+  let input = document.getElementById("userInput").value.trim();
+  const password = document.getElementById("password").value;
+  let emailToUse = input;
 
-  try{
-    let emailToUse = input;
-
-    // Si input ne contient pas "@", on suppose que c'est un username
+  try {
+    // Si l'utilisateur n'a pas "@", on suppose que c'est un username
     if(!input.includes("@")){
-      // Recherche dans usernames → récupérer uid
-      const usernameSnap = await db.collection("usernames").doc(input).get();
-      if(!usernameSnap.exists){
+      const querySnap = await db.collection("usernames").doc(input).get();
+      if(!querySnap.exists){
         return showMsg("⚠️ Nom d’utilisateur introuvable.","error");
       }
-      const uid = usernameSnap.data().uid;
-      // Récupération email réel dans users/{uid}
-      const userDoc = await db.collection("users").doc(uid).get();
-      if(!userDoc.exists){
-        return showMsg("⚠️ Utilisateur introuvable.","error");
-      }
-      emailToUse = userDoc.data().email;
+      emailToUse = querySnap.data().email;
     }
 
-    await auth.signInWithEmailAndPassword(emailToUse, pass);
+    await auth.signInWithEmailAndPassword(emailToUse, password);
     showMsg("✅ Connexion réussie ! Redirection...", "success");
     setTimeout(()=>window.location.href="dashboard.html?v="+Date.now(),1200);
 
-  }catch(err){
+  } catch(err){
     if(err.code==="auth/user-not-found") showMsg("⚠️ Utilisateur introuvable.","error");
     else if(err.code==="auth/wrong-password") showMsg("⚠️ Mot de passe incorrect.","error");
     else showMsg("❌ Erreur : "+err.message,"error");
@@ -110,5 +104,5 @@ function showMsg(txt,type){
 }
 </script>
 </body>
-  </html>
-  
+</html>
+
