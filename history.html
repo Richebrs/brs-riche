@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -12,73 +13,128 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-body { font-family:'Segoe UI',sans-serif; margin:0; padding:0; background:#f4f7fb; color:#333; display:none; }
-header { background:#0d47a1; color:#fff; padding:15px; text-align:center; }
-h1 { margin:0; font-size:1.4em; }
-.history-list { padding:20px; }
-.history-item { background:#fff; padding:15px; margin-bottom:10px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
-.history-item p { margin:5px 0; }
-.type { font-weight:bold; color:#0d47a1; }
-.amount { font-size:1.1em; font-weight:bold; color:#ff9800; }
-.date { font-size:0.9em; color:#777; }
+body {
+  font-family:'Segoe UI',sans-serif;
+  margin:0; padding:0;
+  background:#f4f7fb;
+  color:#333;
+  user-select:none;
+  display:none;
+  overflow-x:hidden;
+}
+header {
+  background:#0d47a1;
+  color:#fff;
+  padding:20px;
+  text-align:center;
+  position:relative;
+}
+header h1 { margin:0; font-size:1.6em; }
+header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
+
+.history-container {
+  max-width:900px;
+  margin:20px auto;
+  padding:0 10px;
+}
+.history-table {
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 6px 16px rgba(0,0,0,0.15);
+}
+.history-table th, .history-table td {
+  padding:12px 15px;
+  text-align:center;
+  border-bottom:1px solid #ddd;
+}
+.history-table th {
+  background:#0d47a1;
+  color:#fff;
+  font-weight:bold;
+}
+.history-table tr:last-child td { border-bottom:none; }
+
+.no-data {
+  text-align:center;
+  margin:40px 0;
+  font-size:1.1em;
+  color:#666;
+}
+
+.back-btn {
+  display:block;
+  margin:20px auto;
+  padding:12px 25px;
+  background:#ff9800;
+  color:#fff;
+  font-weight:bold;
+  text-decoration:none;
+  border-radius:12px;
+  text-align:center;
+  width:200px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  transition:background 0.2s;
+}
+.back-btn:hover { background:#e68900; }
 </style>
 </head>
 <body>
 
 <header>
   <h1>📜 Mes Historiques</h1>
+  <div class="user-info" id="user-info"></div>
 </header>
 
-<div class="history-list" id="history-list">
-  <p>Chargement...</p>
+<div class="history-container">
+  <table class="history-table" id="history-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Type</th>
+        <th>Montant ($)</th>
+      </tr>
+    </thead>
+    <tbody id="history-body">
+      <tr><td colspan="3" class="no-data">Chargement...</td></tr>
+    </tbody>
+  </table>
 </div>
 
+<a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Retour</a>
+
+<script src="firebase-init.js"></script>
+<script src="setup-firestore.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDQ2UWK115OXfThwaGfetIUSPPz_Ry78BA",
-  authDomain: "brs-riche.firebaseapp.com",
-  projectId: "brs-riche",
-  storageBucket: "brs-riche.appspot.com",
-  messagingSenderId: "44338076148",
-  appId: "1:44338076148:web:b0c32d6caa12221fe601a1",
-  measurementId: "G-FQ5ZFB4FYM"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+let currentUserName = "";
 
-auth.onAuthStateChanged(user=>{
-  if(user){
-    document.body.style.display="block";
-    const historyRef = db.collection("users").doc(user.uid).collection("history").orderBy("createdAt","desc");
+listenUserData((user, data)=>{
+  document.body.style.display="block";
+  currentUserName = user.displayName || user.email.split('@')[0];
+  document.getElementById("user-info").innerText = `Bonjour, ${currentUserName}`;
 
-    historyRef.onSnapshot(snapshot=>{
-      const list = document.getElementById("history-list");
-      list.innerHTML="";
-      if(snapshot.empty){
-        list.innerHTML="<p>Aucun historique pour l’instant.</p>";
-      } else {
-        snapshot.forEach(doc=>{
-          const data = doc.data();
-          const item = document.createElement("div");
-          item.className="history-item";
-          item.innerHTML = `
-            <p class="type">📌 ${data.type || "Action"}</p>
-            ${data.amount ? `<p class="amount">💰 ${data.amount} USD</p>` : ""}
-            <p>${data.description || ""}</p>
-            <p class="date">${data.createdAt?.toDate().toLocaleString() || ""}</p>
-          `;
-          list.appendChild(item);
-        });
-      }
-    });
-  } else {
-    window.location.href="login.html";
-  }
+  const historyBody = document.getElementById("history-body");
+  const transactionsRef = db.collection("users").doc(user.uid).collection("transactions").orderBy("createdAt", "desc");
+
+  transactionsRef.onSnapshot(snapshot=>{
+    historyBody.innerHTML = "";
+    if(snapshot.empty){
+      historyBody.innerHTML = '<tr><td colspan="3" class="no-data">Aucune transaction trouvée</td></tr>';
+    } else {
+      snapshot.forEach(doc=>{
+        const t = doc.data();
+        const date = t.createdAt?.toDate ? t.createdAt.toDate().toLocaleString() : "-";
+        const type = t.type || "-";
+        const amount = t.amount?.toFixed(2) ?? "0.00";
+        const row = `<tr><td>${date}</td><td>${type}</td><td>${amount}</td></tr>`;
+        historyBody.innerHTML += row;
+      });
+    }
+  });
 });
 </script>
 
 </body>
 </html>
-
-  
