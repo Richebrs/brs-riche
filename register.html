@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -5,20 +6,39 @@
 <title>Créer un compte - BRS Riche</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body { font-family:'Segoe UI',sans-serif; background:linear-gradient(135deg,#0d47a1,#1565c0); margin:0; padding:0; }
-  .container{max-width:420px;margin:auto;padding:40px 20px;}
-  .card{background:#fff;padding:32px;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.2);}
+  body {
+    font-family:'Segoe UI',sans-serif;
+    background:linear-gradient(135deg,#0d47a1,#1565c0);
+    margin:0; padding:0;
+    display:flex; justify-content:center; align-items:center;
+    min-height:100vh;
+  }
+  .container{max-width:420px;width:100%;padding:20px;}
+  .card{
+    background:#fff;padding:32px;border-radius:16px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.2);
+  }
   .logo{text-align:center;margin-bottom:10px;}
   .logo img{width:80px;height:80px;}
   h1{text-align:center;color:#0d47a1;margin-bottom:20px;}
   .form-group{margin-bottom:18px;}
   label{font-weight:bold;display:block;margin-bottom:6px;}
-  input{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font-size:1em;}
-  button{width:100%;padding:14px;background:#0d47a1;color:#fff;border:none;border-radius:12px;font-size:1em;font-weight:bold;cursor:pointer;transition:.3s;}
+  input{
+    width:100%;padding:12px;
+    border:1px solid #ccc;border-radius:10px;font-size:1em;
+  }
+  button{
+    width:100%;padding:14px;background:#0d47a1;color:#fff;
+    border:none;border-radius:12px;font-size:1em;font-weight:bold;
+    cursor:pointer;transition:.3s;
+  }
   button:hover{background:#1565c0;}
   .link{text-align:center;margin-top:16px;font-size:.9em;}
   .link a{color:#0d47a1;font-weight:bold;text-decoration:none;}
-  .msg{margin-top:15px;padding:10px;border-radius:8px;text-align:center;display:none;}
+  .msg{
+    margin-top:15px;padding:10px;border-radius:8px;
+    text-align:center;display:none;
+  }
   .success{background:#e8f5e9;color:#2e7d32;}
   .error{background:#ffebee;color:#c62828;}
 </style>
@@ -29,8 +49,26 @@
     <div class="logo"><img src="logo.png" alt="BRS Riche"></div>
     <h1>Créer un compte</h1>
     <form id="registerForm">
-      <div class="form-group"><label>Email</label><input type="email" id="email" required></div>
-      <div class="form-group"><label>Mot de passe</label><input type="password" id="password" required></div>
+      <div class="form-group">
+        <label>Nom d’utilisateur</label>
+        <input type="text" id="username" required>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" required>
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" id="password" required minlength="6" placeholder="Min. 6 caractères">
+      </div>
+      <div class="form-group">
+        <label>Répétez le mot de passe</label>
+        <input type="password" id="confirmPassword" required>
+      </div>
+      <div class="form-group">
+        <label>Code Parrainage</label>
+        <input type="text" id="refCode" readonly>
+      </div>
       <button type="submit">S'inscrire</button>
     </form>
     <div id="msgBox" class="msg"></div>
@@ -43,6 +81,7 @@
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -55,28 +94,65 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db = firebase.firestore();
 
+// Pré-remplir code parrainage depuis l’URL ?ref=XXXX
+const urlParams = new URLSearchParams(window.location.search);
+document.getElementById("refCode").value = urlParams.get("ref") || "";
+
+// Formulaire
 const form = document.getElementById('registerForm');
 const msgBox = document.getElementById('msgBox');
 
 form.addEventListener('submit', async e => {
   e.preventDefault(); msgBox.style.display="none";
+  
+  const username = document.getElementById('username').value.trim();
   const email = document.getElementById('email').value.trim();
   const pass = document.getElementById('password').value;
+  const confirmPass = document.getElementById('confirmPassword').value;
+  const refCode = document.getElementById('refCode').value.trim();
+
+  if(pass !== confirmPass){
+    return showMsg("⚠️ Les mots de passe ne correspondent pas.","error");
+  }
+  if(pass.length < 6){
+    return showMsg("⚠️ Le mot de passe doit contenir au moins 6 caractères.","error");
+  }
+
   try{
-    await auth.createUserWithEmailAndPassword(email, pass);
-    showMsg("✅ Compte créé avec succès ! Redirection...", "success");
-    setTimeout(()=>window.location.href="dashboard.html",1200);
+    const userCred = await auth.createUserWithEmailAndPassword(email, pass);
+    const uid = userCred.user.uid;
+    
+    // Sauvegarde Firestore
+    await db.collection("users").doc(uid).set({
+      username: username,
+      email: email,
+      refCode: refCode || null,
+      balanceAvailable: 0,
+      balanceWithdrawn: 0,
+      balanceTotal: 0,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    showMsg("✅ Compte créé avec succès ! Redirection vers la connexion...", "success");
+    setTimeout(()=>window.location.href="login.html",2000);
   }catch(err){
-    if(err.code==="auth/email-already-in-use") showMsg("⚠️ Cet email est déjà utilisé.","error");
-    else if(err.code==="auth/weak-password") showMsg("⚠️ Mot de passe trop faible.","error");
-    else showMsg("Erreur : "+err.message,"error");
+    if(err.code==="auth/email-already-in-use")
+      showMsg("⚠️ Cet email est déjà utilisé. Veuillez vous connecter.","error");
+    else if(err.code==="auth/weak-password")
+      showMsg("⚠️ Mot de passe trop faible.","error");
+    else
+      showMsg("❌ Erreur : "+err.message,"error");
   }
 });
 
-function showMsg(txt,type){msgBox.innerText=txt;msgBox.className="msg "+type;msgBox.style.display="block";}
+function showMsg(txt,type){
+  msgBox.innerText=txt;
+  msgBox.className="msg "+type;
+  msgBox.style.display="block";
+}
 </script>
 </body>
-</html>
-
-  
+          </html>
+      
