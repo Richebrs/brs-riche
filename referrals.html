@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Parrainage - BRS Riche</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body {
+  font-family:'Segoe UI',sans-serif;
+  margin:0; padding:0;
+  background:#f4f7fb;
+  color:#333;
+  display:none;
+}
+header {
+  background:#0d47a1;
+  color:#fff;
+  padding:20px;
+  text-align:center;
+}
+header h1 { margin:0; font-size:1.6em; }
+header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
+
+.referrals-container {
+  max-width:900px;
+  margin:20px auto;
+  padding:0 10px;
+}
+.level-box {
+  background:#fff;
+  border-radius:12px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 6px 16px rgba(0,0,0,0.15);
+}
+.level-box h2 {
+  margin-top:0;
+  color:#0d47a1;
+  font-size:1.3em;
+  text-align:center;
+}
+.level-list {
+  list-style:none;
+  padding:0;
+  margin:0;
+  text-align:center;
+}
+.level-list li {
+  padding:8px 0;
+  border-bottom:1px solid #eee;
+}
+.level-list li:last-child { border-bottom:none; }
+
+.no-referral {
+  text-align:center;
+  color:#666;
+  font-style:italic;
+  margin:10px 0;
+}
+
+.back-btn {
+  display:block;
+  margin:30px auto;
+  padding:12px 25px;
+  background:#0d47a1;
+  color:#fff;
+  font-weight:bold;
+  text-decoration:none;
+  border-radius:12px;
+  text-align:center;
+  width:220px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  transition:background 0.2s;
+}
+.back-btn:hover { background:#08306b; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🤝 Parrainage</h1>
+  <div class="user-info" id="user-info">Chargement...</div>
+</header>
+
+<div class="referrals-container">
+  <div class="level-box">
+    <h2>Niveau 1</h2>
+    <ul id="level-1" class="level-list">
+      <li class="no-referral">Aucun filleul trouvé.</li>
+    </ul>
+  </div>
+  <div class="level-box">
+    <h2>Niveau 2</h2>
+    <ul id="level-2" class="level-list">
+      <li class="no-referral">Aucun filleul trouvé.</li>
+    </ul>
+  </div>
+  <div class="level-box">
+    <h2>Niveau 3</h2>
+    <ul id="level-3" class="level-list">
+      <li class="no-referral">Aucun filleul trouvé.</li>
+    </ul>
+  </div>
+</div>
+
+<a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Retour</a>
+
+<script src="firebase-init.js"></script>
+<script src="setup-firestore.js"></script>
+
+<script>
+listenUserData(async (user, data)=>{
+  document.body.style.display="block";
+  const userName = user.displayName || user.email.split('@')[0];
+  document.getElementById("user-info").innerText = `Bonjour, ${userName}`;
+
+  const levels = [1,2,3];
+  levels.forEach(level=>{
+    const listEl = document.getElementById(`level-${level}`);
+    const refCol = db.collection("users").doc(user.uid).collection("referrals").where("level","==",level);
+    
+    refCol.onSnapshot(snapshot=>{
+      listEl.innerHTML = "";
+      if(snapshot.empty){
+        listEl.innerHTML = '<li class="no-referral">Aucun filleul trouvé.</li>';
+      } else {
+        snapshot.forEach(doc=>{
+          const refData = doc.data();
+          const referredId = refData.referredUserId;
+          if(referredId){
+            db.collection("users").doc(referredId).get().then(refUser=>{
+              const name = refUser.exists ? (refUser.data().displayName || refUser.data().email.split('@')[0]) : "Utilisateur inconnu";
+              const li = document.createElement("li");
+              li.textContent = name;
+              listEl.appendChild(li);
+            });
+          } else {
+            const li = document.createElement("li");
+            li.textContent = "Aucun filleul trouvé.";
+            listEl.appendChild(li);
+          }
+        });
+      }
+    });
+  });
+});
+</script>
+
+</body>
+  </html>
+                                            
