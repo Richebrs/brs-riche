@@ -6,109 +6,149 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <style>
-body { font-family:'Segoe UI',sans-serif; margin:0; padding:0; background:#f4f7fb; color:#333; display:none; }
-header { background:#b71c1c; color:#fff; padding:15px; text-align:center; }
-h1 { margin:0; font-size:1.4em; }
-.container { padding:20px; max-width:400px; margin:auto; }
-input, button { width:100%; padding:12px; margin:8px 0; border-radius:10px; border:1px solid #ccc; font-size:1em; }
-button { background:#b71c1c; color:#fff; font-weight:bold; border:none; cursor:pointer; }
-button:hover { background:#7f0000; }
-.message { margin-top:10px; font-size:0.95em; }
-.success { color:green; }
-.error { color:red; }
+body {
+  font-family:'Segoe UI',sans-serif;
+  margin:0; padding:0;
+  background:#f4f7fb;
+  color:#333;
+  display:none;
+}
+header {
+  background:#0d47a1;
+  color:#fff;
+  padding:20px;
+  text-align:center;
+}
+header h1 { margin:0; font-size:1.6em; }
+header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
+
+.withdraw-container {
+  max-width:400px;
+  margin:50px auto;
+  background:#fff;
+  padding:30px 20px;
+  border-radius:14px;
+  box-shadow:0 6px 16px rgba(0,0,0,0.15);
+  text-align:center;
+}
+.withdraw-container input {
+  width:80%;
+  padding:12px 10px;
+  margin:15px 0;
+  font-size:1.1em;
+  border:1px solid #ccc;
+  border-radius:8px;
+  text-align:center;
+}
+.withdraw-container button {
+  padding:12px 25px;
+  font-size:1.1em;
+  font-weight:bold;
+  color:#fff;
+  background:#ff9800;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  transition:background 0.2s;
+}
+.withdraw-container button:hover { background:#e68900; }
+
+.message {
+  margin-top:15px;
+  font-size:1em;
+  color:#0d47a1;
+}
+.back-btn {
+  display:block;
+  margin:30px auto;
+  padding:12px 25px;
+  background:#0d47a1;
+  color:#fff;
+  font-weight:bold;
+  text-decoration:none;
+  border-radius:12px;
+  text-align:center;
+  width:220px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  transition:background 0.2s;
+}
+.back-btn:hover { background:#08306b; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🏧 Faire un Retrait</h1>
+  <h1>💸 Retrait</h1>
+  <div class="user-info" id="user-info">Chargement...</div>
 </header>
 
-<div class="container">
-  <label for="amount">Montant à retirer (USD)</label>
-  <input type="number" id="amount" placeholder="Ex: 20">
-  <button id="withdraw-btn">Retirer</button>
-  <p class="message" id="message"></p>
+<div class="withdraw-container">
+  <input type="number" id="withdraw-amount" placeholder="Montant à retirer ($)" min="1" step="0.01">
+  <button id="withdraw-btn"><i class="fas fa-hand-holding-dollar"></i> Retirer</button>
+  <div class="message" id="withdraw-message"></div>
 </div>
 
+<a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Retour</a>
+
+<script src="firebase-init.js"></script>
+<script src="setup-firestore.js"></script>
+
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDQ2UWK115OXfThwaGfetIUSPPz_Ry78BA",
-  authDomain: "brs-riche.firebaseapp.com",
-  projectId: "brs-riche",
-  storageBucket: "brs-riche.appspot.com",
-  messagingSenderId: "44338076148",
-  appId: "1:44338076148:web:b0c32d6caa12221fe601a1",
-  measurementId: "G-FQ5ZFB4FYM"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+listenUserData(async (user, data) => {
+  document.body.style.display="block";
+  const userName = user.displayName || user.email.split('@')[0];
+  document.getElementById("user-info").innerText = `Bonjour, ${userName}`;
 
-const amountInput = document.getElementById("amount");
-const btn = document.getElementById("withdraw-btn");
-const msg = document.getElementById("message");
+  const withdrawBtn = document.getElementById("withdraw-btn");
+  const withdrawInput = document.getElementById("withdraw-amount");
+  const messageDiv = document.getElementById("withdraw-message");
 
-auth.onAuthStateChanged(user=>{
-  if(!user){
-    window.location.href="login.html";
-    return;
-  }
-
-  btn.addEventListener("click", async ()=>{
-    const amount = parseFloat(amountInput.value);
+  withdrawBtn.addEventListener("click", async () => {
+    const amount = parseFloat(withdrawInput.value);
     if(isNaN(amount) || amount <= 0){
-      msg.textContent="Veuillez entrer un montant valide.";
-      msg.className="message error";
+      messageDiv.innerText = "Veuillez entrer un montant valide.";
+      return;
+    }
+    if(amount > (data.balanceAvailable ?? 0)){
+      messageDiv.innerText = "❌ Solde insuffisant pour ce retrait.";
       return;
     }
 
+    messageDiv.innerText = "Enregistrement en cours...";
+    
     try {
       const userRef = db.collection("users").doc(user.uid);
-      await db.runTransaction(async (transaction)=>{
-        const doc = await transaction.get(userRef);
-        if(!doc.exists) throw "Utilisateur introuvable";
 
-        const data = doc.data();
-        const currentBalance = data.balanceAvailable || 0;
-
-        if(currentBalance < amount){
-          throw "Solde insuffisant";
-        }
-
-        const newBalance = currentBalance - amount;
-
-        transaction.update(userRef, {
-          balanceAvailable: newBalance
-        });
-
-        const historyRef = userRef.collection("history").doc();
-        transaction.set(historyRef, {
-          type: "withdraw",
-          amount: amount,
-          description: `Retrait de ${amount} USD`,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+      // Ajouter transaction
+      await userRef.collection("transactions").add({
+        type: "Retrait",
+        amount: amount,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
-      msg.textContent="✅ Retrait effectué avec succès !";
-      msg.className="message success";
-      amountInput.value="";
-    } catch(err){
-      console.error(err);
-      msg.textContent= (err === "Solde insuffisant") ? "❌ Solde insuffisant." : "❌ Erreur lors du retrait.";
-      msg.className="message error";
+      // Mettre à jour le solde disponible et total retiré
+      const newAvailable = (data.balanceAvailable ?? 0) - amount;
+      const newWithdrawn = (data.balanceWithdrawn ?? 0) + amount;
+      const newTotal = newAvailable + newWithdrawn;
+      await userRef.update({
+        balanceAvailable: newAvailable,
+        balanceWithdrawn: newWithdrawn,
+        balanceTotal: newTotal
+      });
+
+      withdrawInput.value = "";
+      messageDiv.innerText = "✅ Retrait effectué avec succès !";
+
+    } catch(e) {
+      console.error(e);
+      messageDiv.innerText = "❌ Erreur lors du retrait. Réessayez.";
     }
   });
 });
 </script>
 
 </body>
-</html>
-
+                                            </html>
+    
