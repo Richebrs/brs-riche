@@ -7,11 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <style>
 body {
   font-family:'Segoe UI',sans-serif;
@@ -20,55 +15,42 @@ body {
   color:#333;
   user-select:none;
   display:none;
-  overflow-x:hidden;
 }
 header {
   background:#0d47a1;
   color:#fff;
   padding:20px;
   text-align:center;
-  position:relative;
 }
 header h1 { margin:0; font-size:1.6em; }
 header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 
-.history-container {
-  max-width:900px;
+.container {
+  max-width:600px;
   margin:20px auto;
-  padding:0 10px;
+  padding:0 15px;
 }
-.history-table {
-  width:100%;
-  border-collapse:collapse;
-  background:#fff;
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 6px 16px rgba(0,0,0,0.15);
-}
-.history-table th, .history-table td {
-  padding:12px 15px;
-  text-align:center;
-  border-bottom:1px solid #ddd;
-}
-.history-table th {
-  background:#0d47a1;
-  color:#fff;
-  font-weight:bold;
-}
-.history-table tr:last-child td { border-bottom:none; }
 
-.no-data {
-  text-align:center;
-  margin:40px 0;
-  font-size:1.1em;
-  color:#666;
+.transaction {
+  background:#fff;
+  border-radius:14px;
+  padding:15px 20px;
+  margin-bottom:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
+
+.transaction-type { font-weight:bold; color:#0d47a1; }
+.transaction-amount { font-weight:bold; }
+.transaction-date { font-size:0.85em; opacity:0.8; }
 
 .back-btn {
   display:block;
   margin:20px auto;
   padding:12px 25px;
-  background:#ff9800;
+  background:#0d47a1;
   color:#fff;
   font-weight:bold;
   text-decoration:none;
@@ -78,7 +60,8 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
   box-shadow:0 4px 12px rgba(0,0,0,0.2);
   transition:background 0.2s;
 }
-.back-btn:hover { background:#e68900; }
+.back-btn:hover { background:#08306b; }
+
 </style>
 </head>
 <body>
@@ -88,19 +71,8 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
   <div class="user-info" id="user-info"></div>
 </header>
 
-<div class="history-container">
-  <table class="history-table" id="history-table">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Type</th>
-        <th>Montant ($)</th>
-      </tr>
-    </thead>
-    <tbody id="history-body">
-      <tr><td colspan="3" class="no-data">Chargement...</td></tr>
-    </tbody>
-  </table>
+<div class="container" id="history-container">
+  <!-- Les transactions seront injectées ici -->
 </div>
 
 <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Retour</a>
@@ -108,31 +80,32 @@ header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
 <script src="firebase-init.js"></script>
 <script src="setup-firestore.js"></script>
 <script>
-let currentUserName = "";
-
 listenUserData((user, data)=>{
   document.body.style.display="block";
-  currentUserName = user.displayName || user.email.split('@')[0];
-  document.getElementById("user-info").innerText = `Bonjour, ${currentUserName}`;
+  const userName = user.displayName || user.email.split('@')[0];
+  document.getElementById("user-info").innerText = `Bonjour, ${userName}`;
 
-  const historyBody = document.getElementById("history-body");
-  const transactionsRef = db.collection("users").doc(user.uid).collection("transactions").orderBy("createdAt", "desc");
+  const container = document.getElementById("history-container");
+  const userRef = firebase.firestore().collection("users").doc(user.uid);
 
-  transactionsRef.onSnapshot(snapshot=>{
-    historyBody.innerHTML = "";
-    if(snapshot.empty){
-      historyBody.innerHTML = '<tr><td colspan="3" class="no-data">Aucune transaction trouvée</td></tr>';
-    } else {
+  // Écoute la collection transactions
+  userRef.collection("transactions")
+    .orderBy("createdAt", "desc")
+    .onSnapshot(snapshot=>{
+      container.innerHTML = ""; // vider avant de remplir
       snapshot.forEach(doc=>{
         const t = doc.data();
-        const date = t.createdAt?.toDate ? t.createdAt.toDate().toLocaleString() : "-";
-        const type = t.type || "-";
-        const amount = t.amount?.toFixed(2) ?? "0.00";
-        const row = `<tr><td>${date}</td><td>${type}</td><td>${amount}</td></tr>`;
-        historyBody.innerHTML += row;
+        const date = t.createdAt ? t.createdAt.toDate().toLocaleString() : "";
+        const div = document.createElement("div");
+        div.classList.add("transaction");
+        div.innerHTML = `
+          <span class="transaction-type">${t.type.toUpperCase()}</span>
+          <span class="transaction-amount">$${t.amount.toFixed(2)}</span>
+          <span class="transaction-date">${date}</span>
+        `;
+        container.appendChild(div);
       });
-    }
-  });
+    });
 });
 </script>
 
