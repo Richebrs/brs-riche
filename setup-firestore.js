@@ -15,10 +15,12 @@ function setupFirestore() {
         await userRef.set({
           email: user.email,
           displayName: user.displayName || user.email.split('@')[0],
+          username: user.email.split('@')[0],
           balanceAvailable: 0,
           balanceWithdrawn: 0,
           balanceTotal: 0,
           sponsor: null,
+          role: "user", // par défaut utilisateur, à changer pour admin si besoin
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
       }
@@ -37,7 +39,22 @@ function setupFirestore() {
         await referralsRef.add({ level: 3, referredUserId: null });
       }
 
-      // Créer hotels et residences
+      // Créer hôtels achetés (myHotels)
+      const myHotelsRef = userRef.collection("myHotels");
+      if ((await myHotelsRef.get()).empty) {
+        await myHotelsRef.add({
+          hotelId: null,
+          name: "Exemple Hôtel",
+          price: 0,
+          dailyRate: 0,
+          acquiredAt: null,
+          expiresAt: null,
+          lastProfitAt: null,
+          imageUrl: ""
+        });
+      }
+
+      // Créer hôtels et résidences globales
       const hotelsRef = userRef.collection("hotels");
       if ((await hotelsRef.get()).empty) {
         await hotelsRef.add({ name: "Exemple Hotel", rooms: 0, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
@@ -59,5 +76,4 @@ function setupFirestore() {
 // Lancer la configuration automatique
 setupFirestore();
 </script>
-
-        
+            
