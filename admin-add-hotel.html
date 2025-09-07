@@ -1,43 +1,75 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <title>Admin - Ajouter Hôtel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="firebase-init.js"></script>
+
   <style>
     body { font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; }
     h2 { text-align: center; }
     input, button { width: 100%; padding: 10px; margin: 5px 0; }
     .preview { text-align: center; margin: 10px 0; }
     .preview img { max-width: 100%; border-radius: 10px; }
+    .hidden { display: none; }
+    .error { color: red; text-align: center; }
   </style>
 </head>
 <body>
   <h2>Ajouter un Hôtel</h2>
-  <input type="text" id="hotelName" placeholder="Nom de l'hôtel">
-  <input type="number" id="hotelPrice" placeholder="Prix ($)">
-  <input type="number" id="dailyRate" placeholder="Rendement par jour (%)">
-  <input type="number" id="durationDays" placeholder="Durée (jours)">
-  <input type="number" id="rooms" placeholder="Nombre de chambres">
-  <input type="url" id="imageUrl" placeholder="URL image de l'hôtel">
 
-  <div class="preview"><img id="previewImg" src="" alt=""></div>
+  <!-- Formulaire réservé aux admins -->
+  <div id="adminForm" class="hidden">
+    <input type="text" id="hotelName" placeholder="Nom de l'hôtel">
+    <input type="number" id="hotelPrice" placeholder="Prix ($)">
+    <input type="number" id="dailyRate" placeholder="Rendement par jour (%)">
+    <input type="number" id="durationDays" placeholder="Durée (jours)">
+    <input type="number" id="rooms" placeholder="Nombre de chambres">
+    <input type="url" id="imageUrl" placeholder="URL image de l'hôtel">
 
-  <button onclick="addHotel()">Ajouter</button>
+    <div class="preview"><img id="previewImg" src="" alt=""></div>
 
-  <p id="status"></p>
+    <button onclick="addHotel()">Ajouter</button>
+    <p id="status"></p>
+  </div>
+
+  <!-- Message si pas admin -->
+  <p id="noAccess" class="hidden error">
+    ❌ Accès refusé – Vous n'êtes pas admin.
+  </p>
 
   <script>
     const db = firebase.firestore();
 
+    // Vérifier si l'utilisateur est admin
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const userDoc = await db.collection("users").doc(user.uid).get();
+      if (userDoc.exists && userDoc.data().role === "admin") {
+        document.getElementById("adminForm").classList.remove("hidden");
+      } else {
+        document.getElementById("noAccess").classList.remove("hidden");
+        setTimeout(() => window.location.href = "dashboard.html", 3000);
+      }
+    });
+
+    // Prévisualiser image
     document.getElementById("imageUrl").addEventListener("input", e => {
       document.getElementById("previewImg").src = e.target.value;
     });
 
+    // Ajouter hôtel dans Firestore
     async function addHotel() {
       const name = document.getElementById("hotelName").value;
       const price = parseFloat(document.getElementById("hotelPrice").value);
@@ -52,7 +84,12 @@
       }
 
       await db.collection("hotels").add({
-        name, price, dailyRate: rate, durationDays: duration, rooms, imageUrl,
+        name,
+        price,
+        dailyRate: rate,
+        durationDays: duration,
+        rooms,
+        imageUrl,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
@@ -61,3 +98,5 @@
   </script>
 </body>
 </html>
+
+  
