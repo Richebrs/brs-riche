@@ -1,131 +1,131 @@
-!DOCTYPE html>
+
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Mes Historiques - BRS Riche</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<style>
-body {
-  font-family:'Segoe UI',sans-serif;
-  margin:0; padding:0;
-  background:#f4f7fb;
-  color:#333;
-  user-select:none;
-  display:none;
-}
-header {
-  background:#0d47a1;
-  color:#fff;
-  padding:20px;
-  text-align:center;
-}
-header h1 { margin:0; font-size:1.6em; }
-header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
-
-.history-container {
-  max-width:900px;
-  margin:20px auto;
-  padding:0 10px;
-}
-.history-table {
-  width:100%;
-  border-collapse:collapse;
-  background:#fff;
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 6px 16px rgba(0,0,0,0.15);
-}
-.history-table th, .history-table td {
-  padding:12px 15px;
-  text-align:center;
-  border-bottom:1px solid #ddd;
-}
-.history-table th {
-  background:#0d47a1;
-  color:#fff;
-  font-weight:bold;
-}
-.history-table tr:last-child td { border-bottom:none; }
-
-.no-data {
-  text-align:center;
-  margin:40px 0;
-  font-size:1.1em;
-  color:#666;
-}
-
-.back-btn {
-  display:block;
-  margin:20px auto;
-  padding:12px 25px;
-  background:#ff9800;
-  color:#fff;
-  font-weight:bold;
-  text-decoration:none;
-  border-radius:12px;
-  text-align:center;
-  width:200px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.2);
-  transition:background 0.2s;
-}
-.back-btn:hover { background:#e68900; }
-</style>
-</head>
-<body>
-
-<header>
-  <h1>📜 Mes Historiques</h1>
-  <div class="user-info" id="user-info">Chargement...</div>
-</header>
-
-<div class="history-container">
-  <table class="history-table" id="history-table">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Type</th>
-        <th>Montant ($)</th>
-      </tr>
-    </thead>
-    <tbody id="history-body">
-      <tr><td colspan="3" class="no-data">Chargement...</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Retour</a>
-
-<script src="firebase-init.js"></script>
-<script src="setup-firestore.js"></script>
-<script>
-listenUserData((user, data)=>{
-  document.body.style.display="block";
-  const userName = user.displayName || user.email.split('@')[0];
-  document.getElementById("user-info").innerText = `Bonjour, ${userName}`;
-
-  const historyBody = document.getElementById("history-body");
-  const transactionsRef = db.collection("users").doc(user.uid)
-                            .collection("transactions")
-                            .orderBy("createdAt","desc");
-
-  transactionsRef.onSnapshot(snapshot=>{
-    historyBody.innerHTML = "";
-    if(snapshot.empty){
-      historyBody.innerHTML = '<tr><td colspan="3" class="no-data">Aucune transaction disponible pour le moment</td></tr>';
-    } else {
-      snapshot.forEach(doc=>{
-        const t = doc.data();
-        const date = t.createdAt?.toDate ? t.createdAt.toDate().toLocaleString() : "-";
-        const type = t.type || "-";
-        const amount = t.amount?.toFixed(2) ?? "0.00";
-        historyBody.innerHTML += `<tr><td>${date}</td><td>${type}</td><td>${amount}</td></tr>`;
-      });
+  <meta charset="UTF-8">
+  <title>Mes Historiques - BRS Riche</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0d47a1, #1565c0);
+      margin: 0; padding: 0;
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh;
     }
-  });
-});
-</script>
+    .container { max-width: 500px; width: 100%; padding: 20px; }
+    .card {
+      background: #fff; padding: 25px;
+      border-radius: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    }
+    h1 { text-align: center; color: #0d47a1; margin-bottom: 20px; }
+    .balance {
+      text-align: center; font-size: 1.4em; font-weight: bold;
+      margin-bottom: 20px; color: #2e7d32;
+    }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li {
+      padding: 12px; border-bottom: 1px solid #eee;
+      display: flex; justify-content: space-between;
+      align-items: center;
+    }
+    li span.type { font-weight: bold; color: #1565c0; }
+    li span.amount { font-weight: bold; }
+    li span.date { font-size: 0.8em; color: #666; }
+    .empty { text-align: center; color: #777; margin-top: 20px; }
+    .btn-back {
+      display: block; width: 100%; margin-top: 20px;
+      padding: 12px; background: #0d47a1; color: #fff;
+      border: none; border-radius: 10px;
+      font-weight: bold; font-size: 1em; cursor: pointer;
+    }
+    .btn-back:hover { background: #1565c0; }
+  </style>
+</head>
+<body oncontextmenu="return false">
+  <div class="container">
+    <div class="card">
+      <h1>Mes Historiques</h1>
+      <div id="balance" class="balance">$0.00</div>
+      <ul id="historyList"></ul>
+      <div id="emptyMsg" class="empty" style="display:none;">
+        Aucun historique trouvé pour le moment.
+      </div>
+      <button class="btn-back" onclick="window.location.href='dashboard.html'">Retour</button>
+    </div>
+  </div>
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-init.js"></script>
+  <script src="setup-firestore.js"></script>
+
+  <script>
+    auth.onAuthStateChanged(user => {
+      if (!user) return window.location.href = "login.html";
+
+      const userRef = db.collection("users").doc(user.uid);
+
+      // 🔹 écouter toutes les "traces" = transactions + parrainages + hôtels + résidences
+      function renderItem(type, label, amount, date) {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <span class="type">${type}</span>
+          <span class="amount">${label} ${amount ? "$" + amount.toFixed(2) : ""}</span>
+          <span class="date">${date ? new Date(date.seconds * 1000).toLocaleString() : ""}</span>
+        `;
+        return li;
+      }
+
+      const list = document.getElementById("historyList");
+      const emptyMsg = document.getElementById("emptyMsg");
+      let total = 0;
+
+      // Transactions (dépôt, retrait…)
+      userRef.collection("transactions").orderBy("createdAt","desc").onSnapshot(snap => {
+        list.innerHTML = "";
+        total = 0;
+
+        if (snap.empty) emptyMsg.style.display = "block";
+        else emptyMsg.style.display = "none";
+
+        snap.forEach(doc => {
+          const data = doc.data();
+          list.appendChild(renderItem(data.type || "Transaction", "", data.amount || 0, data.createdAt));
+          total += data.amount || 0;
+        });
+
+        document.getElementById("balance").innerText = "$" + total.toFixed(2);
+      });
+
+      // Parrainages
+      userRef.collection("referrals").onSnapshot(snap => {
+        snap.forEach(doc => {
+          const data = doc.data();
+          list.appendChild(renderItem("Parrainage", `Niveau ${data.level}`, null, data.createdAt));
+        });
+      });
+
+      // Hôtels
+      userRef.collection("hotels").onSnapshot(snap => {
+        snap.forEach(doc => {
+          const data = doc.data();
+          list.appendChild(renderItem("Hôtel", data.name, null, data.createdAt));
+        });
+      });
+
+      // Résidences
+      userRef.collection("residences").onSnapshot(snap => {
+        snap.forEach(doc => {
+          const data = doc.data();
+          list.appendChild(renderItem("Résidence", data.name, null, data.createdAt));
+        });
+      });
+    });
+  </script>
 </body>
 </html>
+
+        
