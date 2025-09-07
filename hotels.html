@@ -1,111 +1,99 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Mes Hôtels - BRS Riche</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<style>
-body {
-  font-family:'Segoe UI',sans-serif;
-  margin:0; padding:0;
-  background:#f4f7fb;
-  color:#333;
-  display:none;
-}
-header {
-  background:#0d47a1;
-  color:#fff;
-  padding:20px;
-  text-align:center;
-}
-header h1 { margin:0; font-size:1.6em; }
-header .user-info { margin-top:8px; font-size:0.95em; opacity:0.9; }
-
-.properties-container {
-  max-width:900px;
-  margin:20px auto;
-  padding:0 10px;
-}
-.property-box {
-  background:#fff;
-  border-radius:12px;
-  padding:20px;
-  margin-bottom:20px;
-  box-shadow:0 6px 16px rgba(0,0,0,0.15);
-  text-align:center;
-}
-.property-box h2 { margin-top:0; color:#0d47a1; font-size:1.3em; }
-.property-box p { margin:5px 0; font-size:1em; color:#555; }
-
-.no-property {
-  text-align:center;
-  color:#666;
-  font-style:italic;
-  margin:20px 0;
-}
-
-.back-btn {
-  display:block;
-  margin:30px auto;
-  padding:12px 25px;
-  background:#0d47a1;
-  color:#fff;
-  font-weight:bold;
-  text-decoration:none;
-  border-radius:12px;
-  text-align:center;
-  width:220px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.2);
-  transition:background 0.2s;
-}
-.back-btn:hover { background:#08306b; }
-</style>
+  <meta charset="UTF-8">
+  <title>Hôtels Disponibles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-init.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 10px; }
+    h2 { text-align: center; }
+    .hotel { border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px 0; text-align: center; }
+    .hotel img { max-width: 100%; border-radius: 10px; }
+    button { margin-top: 10px; padding: 8px 15px; border: none; border-radius: 5px; background: green; color: white; cursor: pointer; }
+  </style>
 </head>
 <body>
+  <h2>Nos Hôtels</h2>
+  <div id="hotelList"></div>
 
-<header>
-  <h1>🏨 Mes Hôtels</h1>
-  <div class="user-info" id="user-info">Chargement...</div>
-</header>
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
 
-<div class="properties-container" id="properties-container">
-  <p class="no-property">Chargement des hôtels...</p>
-</div>
+    async function loadHotels() {
+      const snap = await db.collection("hotels").get();
+      const list = document.getElementById("hotelList");
+      list.innerHTML = "";
 
-<a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Retour</a>
-
-<script src="firebase-init.js"></script>
-<script src="setup-firestore.js"></script>
-
-<script>
-listenUserData((user, data)=>{
-  document.body.style.display="block";
-  const userName = user.displayName || user.email.split('@')[0];
-  document.getElementById("user-info").innerText = `Bonjour, ${userName}`;
-
-  const container = document.getElementById("properties-container");
-  const hotelsRef = db.collection("users").doc(user.uid).collection("hotels");
-
-  hotelsRef.onSnapshot(snapshot=>{
-    container.innerHTML = "";
-    if(snapshot.empty){
-      container.innerHTML = '<p class="no-property">Aucun hôtel trouvé.</p>';
-    } else {
-      snapshot.forEach(doc=>{
-        const h = doc.data();
-        const box = document.createElement("div");
-        box.className = "property-box";
-        box.innerHTML = `<h2>${h.name || "Hôtel sans nom"}</h2>
-                         <p>Chambres: ${h.rooms ?? 0}</p>
-                         <p>Ajouté le: ${h.createdAt?.toDate ? h.createdAt.toDate().toLocaleString() : "-"}</p>`;
-        container.appendChild(box);
+      snap.forEach(doc => {
+        const hotel = doc.data();
+        const div = document.createElement("div");
+        div.className = "hotel";
+        div.innerHTML = `
+          <img src="${hotel.imageUrl}" alt="${hotel.name}">
+          <h3>${hotel.name}</h3>
+          <p>Prix: $${hotel.price}</p>
+          <p>Rendement: ${(hotel.dailyRate * 100).toFixed(2)}% / jour</p>
+          <p>Durée: ${hotel.durationDays} jours</p>
+          <p>Chambres disponibles: ${hotel.rooms}</p>
+          <button onclick="buyHotel('${doc.id}', '${hotel.name}', ${hotel.price}, ${hotel.dailyRate}, ${hotel.durationDays}, '${hotel.imageUrl}')">Acheter</button>
+        `;
+        list.appendChild(div);
       });
     }
-  });
-});
-</script>
 
+    async function buyHotel(hotelId, name, price, rate, duration, imageUrl) {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Veuillez vous connecter !");
+        return;
+      }
+
+      const userRef = db.collection("users").doc(user.uid);
+      const userDoc = await userRef.get();
+      const balance = userDoc.data().balanceAvailable || 0;
+
+      if (balance < price) {
+        alert("❌ Solde insuffisant !");
+        return;
+      }
+
+      // Déduire solde
+      await userRef.update({
+        balanceAvailable: firebase.firestore.FieldValue.increment(-price)
+      });
+
+      // Ajouter hôtel à l’utilisateur
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + duration);
+
+      await userRef.collection("myHotels").add({
+        hotelId, name, price, dailyRate: rate,
+        acquiredAt: firebase.firestore.FieldValue.serverTimestamp(),
+        expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt),
+        lastProfitAt: null,
+        imageUrl
+      });
+
+      // Transaction
+      await userRef.collection("transactions").add({
+        type: "purchase",
+        amount: price,
+        hotelName: name,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      alert("✅ Achat réussi !");
+    }
+
+    loadHotels();
+  </script>
 </body>
 </html>
+
+  
