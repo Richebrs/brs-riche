@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Donner rôle Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-init.js"></script>
+</head>
+<body>
+  <h2>Attribuer Admin à un utilisateur</h2>
+  <input type="email" id="email" placeholder="Email utilisateur">
+  <button onclick="makeAdmin()">Rendre Admin</button>
+  <p id="status"></p>
+
+  <script>
+    async function makeAdmin() {
+      const email = document.getElementById("email").value;
+      if (!email) {
+        document.getElementById("status").innerText = "⚠️ Entrez un email.";
+        return;
+      }
+
+      try {
+        // On cherche l'utilisateur par email dans Firestore
+        const usersRef = db.collection("users");
+        const snapshot = await usersRef.where("email", "==", email).get();
+
+        if (snapshot.empty) {
+          document.getElementById("status").innerText = "❌ Aucun utilisateur trouvé avec cet email.";
+          return;
+        }
+
+        snapshot.forEach(async doc => {
+          await doc.ref.update({ role: "admin" });
+          document.getElementById("status").innerText = `✅ ${email} est maintenant Admin !`;
+        });
+      } catch (error) {
+        console.error("Erreur :", error);
+        document.getElementById("status").innerText = "❌ Erreur : " + error.message;
+      }
+    }
+  </script>
+</body>
+</html>
