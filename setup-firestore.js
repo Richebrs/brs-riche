@@ -1,4 +1,4 @@
-
+<!-- setup-firestore.js -->
 <script>
 function setupFirestore() {
   auth.onAuthStateChanged(async user => {
@@ -7,26 +7,43 @@ function setupFirestore() {
     const userRef = db.collection("users").doc(user.uid);
 
     try {
-      // Mettre à jour (ou créer) le document utilisateur avec merge
-      await userRef.set({
-        email: user.email,
-        displayName: user.displayName || user.email.split('@')[0],
-        username: user.email.split('@')[0],
-        balanceAvailable: firebase.firestore.FieldValue.increment(0),
-        balanceWithdrawn: firebase.firestore.FieldValue.increment(0),
-        balanceTotal: firebase.firestore.FieldValue.increment(0),
-        sponsor: null,
-        role: "user",
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true }); // ⚡ merge = ajoute les champs manquants sans écraser l’existant
-
-      // Transactions
-      const transactionsRef = userRef.collection("transactions");
-      if ((await transactionsRef.get()).empty) {
-        await transactionsRef.add({ type: "init", amount: 0, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      // ✅ Vérifier si le document existe
+      const userDoc = await userRef.get();
+      if (!userDoc.exists) {
+        await userRef.set({
+          email: user.email,
+          username: user.displayName || user.email.split("@")[0],
+          role: "user", // par défaut, tu peux mettre "admin" si besoin
+          balanceAvailable: 0,
+          balanceWithdrawn: 0,
+          balanceTotal: 0,
+          sponsor: null,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log("📌 Nouveau document utilisateur créé !");
+      } else {
+        // ✅ Ajouter champs manquants
+        await userRef.set({
+          role: userDoc.data().role || "user",
+          balanceAvailable: userDoc.data().balanceAvailable || 0,
+          balanceWithdrawn: userDoc.data().balanceWithdrawn || 0,
+          balanceTotal: userDoc.data().balanceTotal || 0,
+          sponsor: userDoc.data().sponsor || null,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        console.log("🔄 Document utilisateur mis à jour :", user.email);
       }
 
-      // Referrals
+      // ✅ Vérifier sous-collections
+      const transactionsRef = userRef.collection("transactions");
+      if ((await transactionsRef.get()).empty) {
+        await transactionsRef.add({
+          type: "init",
+          amount: 0,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+
       const referralsRef = userRef.collection("referrals");
       if ((await referralsRef.get()).empty) {
         await referralsRef.add({ level: 1, referredUserId: null });
@@ -34,7 +51,6 @@ function setupFirestore() {
         await referralsRef.add({ level: 3, referredUserId: null });
       }
 
-      // MyHotels
       const myHotelsRef = userRef.collection("myHotels");
       if ((await myHotelsRef.get()).empty) {
         await myHotelsRef.add({
@@ -49,12 +65,28 @@ function setupFirestore() {
         });
       }
 
-      console.log("✅ Setup Firestore terminé pour :", user.uid);
+      const myResidencesRef = userRef.collection("myResidences");
+      if ((await myResidencesRef.get()).empty) {
+        await myResidencesRef.add({
+          residenceId: null,
+          name: "Exemple Résidence",
+          units: 0,
+          acquiredAt: null,
+          expiresAt: null,
+          lastProfitAt: null,
+          imageUrl: ""
+        });
+      }
+
+      console.log("✅ Setup Firestore terminé pour :", user.email);
+
     } catch (err) {
       console.error("❌ Erreur setup Firestore :", err);
     }
   });
 }
+
+// ⚡ Lancer automatiquement
 setupFirestore();
 </script>
-                          
+          
