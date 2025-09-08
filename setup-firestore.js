@@ -76,4 +76,4 @@ function setupFirestore() {
 // Lancer la configuration automatique
 setupFirestore();
 </script>
-            
+                          
